@@ -1,0 +1,113 @@
+import { useDashboardData } from '../hooks/useDashboardData'
+import { useAppStore } from '../store'
+import { useTranslation } from '../lib/i18n'
+import { Brain, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react'
+
+export default function CoachingPage() {
+  const { language } = useAppStore()
+  const t = useTranslation(language)
+  const { isLoading, isError, kpis, userStats, actStats, roundStats, refetch } = useDashboardData()
+
+  if (isLoading) {
+    return (
+      <div className="space-y-4">
+        <div className="h-8 w-48 skeleton rounded-lg" />
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="card p-5 h-64 skeleton rounded-xl" />
+          <div className="card p-5 h-64 skeleton rounded-xl" />
+        </div>
+      </div>
+    )
+  }
+
+  if (isError || !kpis) {
+    return (
+      <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
+        <p className="text-slate-400">{t('error')}</p>
+        <button onClick={refetch} className="btn-primary">{t('retry')}</button>
+      </div>
+    )
+  }
+
+  const lowPerformers = (userStats ?? []).filter((u) => u.avgScore < 60).slice(0, 5)
+  const weakActivities = (actStats ?? []).filter((a) => a.passRate < 60).slice(0, 5)
+  const weakRounds = (roundStats ?? []).filter((r) => r.passRate < 60)
+
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_coaching_title')}</h1>
+        <p className="text-slate-500 text-sm mt-0.5">{t('page_coaching_subtitle')}</p>
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+        {/* Strengths */}
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <TrendingUp className="w-4 h-4 text-success" />
+            <h3 className="text-sm font-semibold text-slate-200">Strengths</h3>
+          </div>
+          <div className="space-y-2">
+            {(userStats ?? []).slice(0, 5).map((u) => (
+              <div key={u.name} className="flex items-center justify-between p-2 rounded-lg bg-success/5 border border-success/10">
+                <span className="text-xs text-slate-300">{u.name}</span>
+                <span className="text-xs font-bold text-success">{u.avgScore}%</span>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Improvement areas */}
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle className="w-4 h-4 text-warning" />
+            <h3 className="text-sm font-semibold text-slate-200">Areas to Improve</h3>
+          </div>
+          <div className="space-y-2">
+            {lowPerformers.length > 0 ? (
+              lowPerformers.map((u) => (
+                <div key={u.name} className="flex items-center justify-between p-2 rounded-lg bg-warning/5 border border-warning/10">
+                  <span className="text-xs text-slate-300">{u.name}</span>
+                  <span className="text-xs font-bold text-warning">{u.avgScore}%</span>
+                </div>
+              ))
+            ) : (
+              <p className="text-xs text-slate-500 text-center py-4">All advisors above threshold</p>
+            )}
+          </div>
+        </div>
+
+        {/* Coaching tips */}
+        <div className="card p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <Lightbulb className="w-4 h-4 text-accent" />
+            <h3 className="text-sm font-semibold text-slate-200">Coaching Tips</h3>
+          </div>
+          <div className="space-y-2 text-xs text-slate-400">
+            {weakRounds.length > 0 && (
+              <p>Focus training on rounds with lower pass rates: {weakRounds.map((r) => `R${r.round}`).join(', ')}.</p>
+            )}
+            {weakActivities.length > 0 && (
+              <p>Review material for: {weakActivities.map((a) => a.name).join(', ')}.</p>
+            )}
+            <p>Average platform score is {kpis.averageScore}%. Set target at {Math.min(100, kpis.averageScore + 10)}%.</p>
+            <p>Pass rate is {kpis.passRate}%. Consider extra support for advisors below 60%.</p>
+          </div>
+        </div>
+      </div>
+
+      {/* AI CTA */}
+      <div className="card p-6 text-center">
+        <Brain className="w-8 h-8 text-violet mx-auto mb-3" />
+        <h3 className="text-base font-semibold text-slate-200 mb-1">AI-Powered Coaching</h3>
+        <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">Use the AI Assistant to get personalized coaching recommendations, identify team weaknesses, and generate executive summaries.</p>
+        <button
+          onClick={() => useAppStore.getState().toggleAI()}
+          className="btn-primary mx-auto"
+        >
+          Open AI Assistant
+        </button>
+      </div>
+    </div>
+  )
+}
