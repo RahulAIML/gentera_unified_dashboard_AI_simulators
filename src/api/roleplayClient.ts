@@ -1,12 +1,4 @@
 import type {
-  DimSupervisoresResponse,
-  DimAdministradoresResponse,
-  DimUsuariosResponse,
-  DimActividadesRubResponse,
-  SuperUserResponse,
-  SuperAdminResponse,
-  SuperActRubResponse,
-  FactRolPlayRubResponse,
   RpSupervisor,
   RpAdministrador,
   RpUsuario,
@@ -14,6 +6,9 @@ import type {
   SuperUser,
   SuperAdmin,
   SuperActRub,
+  SuperLinea,
+  AdminActRub,
+  UserActRub,
   RpFactSession,
 } from './roleplayTypes'
 
@@ -26,44 +21,57 @@ async function fetchJSON<T>(url: string): Promise<T> {
   return res.json() as Promise<T>
 }
 
+// Generic helper: all endpoints return { <WrapperKey>: T[] }
+async function fetchWrapped<T>(endpoint: string, key: string): Promise<T[]> {
+  const raw = await fetchJSON<Record<string, T[]>>(`${BASE}/${endpoint}`)
+  if (Array.isArray(raw)) return raw
+  if (Array.isArray(raw[key])) return raw[key]
+  // Fallback: look for any array value
+  const firstArr = Object.values(raw).find(Array.isArray)
+  return (firstArr as T[] | undefined) ?? []
+}
+
 export async function fetchRpSupervisores(): Promise<RpSupervisor[]> {
-  const r = await fetchJSON<DimSupervisoresResponse>(`${BASE}/Dim_Supervisores.php`)
-  return r.Dim_Supervisores ?? []
+  return fetchWrapped<RpSupervisor>('Dim_Supervisores.php', 'Dim_Supervisores')
 }
 
 export async function fetchRpAdministradores(): Promise<RpAdministrador[]> {
-  const r = await fetchJSON<DimAdministradoresResponse>(`${BASE}/Dim_Administradores.php`)
-  return r.Dim_Administradores ?? []
+  return fetchWrapped<RpAdministrador>('Dim_Administradores.php', 'Dim_Administradores')
 }
 
 export async function fetchRpUsuarios(): Promise<RpUsuario[]> {
-  const r = await fetchJSON<DimUsuariosResponse>(`${BASE}/Dim_Usuarios.php`)
-  return r.Dim_Usuarios ?? []
+  return fetchWrapped<RpUsuario>('Dim_Usuarios.php', 'Dim_Usuarios')
 }
 
 export async function fetchRpActividadesRub(): Promise<RpActividadRub[]> {
-  const r = await fetchJSON<DimActividadesRubResponse>(`${BASE}/Dim_Actividades_Rub.php`)
-  return r.Dim_Actividades_Rub ?? []
+  return fetchWrapped<RpActividadRub>('Dim_Actividades_Rub.php', 'Dim_Actividades_Rub')
 }
 
 export async function fetchSuperUser(): Promise<SuperUser[]> {
-  const r = await fetchJSON<SuperUserResponse>(`${BASE}/Super_User.php`)
-  return r.Super_User ?? []
+  return fetchWrapped<SuperUser>('Super_User.php', 'Super_User')
 }
 
 export async function fetchSuperAdmin(): Promise<SuperAdmin[]> {
-  const r = await fetchJSON<SuperAdminResponse>(`${BASE}/Super_Admin.php`)
-  return r.Super_Admin ?? []
+  return fetchWrapped<SuperAdmin>('Super_Admin.php', 'Super_Admin')
 }
 
 export async function fetchSuperActRub(): Promise<SuperActRub[]> {
-  const r = await fetchJSON<SuperActRubResponse>(`${BASE}/Super_Act_Rub.php`)
-  return r.Super_Act_Rub ?? []
+  return fetchWrapped<SuperActRub>('Super_Act_Rub.php', 'Super_Act_Rub')
+}
+
+export async function fetchSuperLinea(): Promise<SuperLinea[]> {
+  return fetchWrapped<SuperLinea>('Super_Linea.php', 'Super_Linea')
+}
+
+export async function fetchAdminActRub(): Promise<AdminActRub[]> {
+  return fetchWrapped<AdminActRub>('Admin_Act_Rub.php', 'Admin_Act_Rub')
+}
+
+export async function fetchUserActRub(): Promise<UserActRub[]> {
+  return fetchWrapped<UserActRub>('User_Act_Rub.php', 'User_Act_Rub')
 }
 
 export async function fetchFactRolPlayRub(): Promise<RpFactSession[]> {
-  const raw = await fetchJSON<FactRolPlayRubResponse>(`${BASE}/Fact_RolPlay_Rub.php`)
-  if (Array.isArray(raw)) return raw
-  if ('data' in raw && Array.isArray(raw.data)) return raw.data
-  return []
+  // API returns { Fact_RolPlay_Rub: [...] } — NOT a bare array
+  return fetchWrapped<RpFactSession>('Fact_RolPlay_Rub.php', 'Fact_RolPlay_Rub')
 }
