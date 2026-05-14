@@ -85,7 +85,7 @@ export default function CoachingPage() {
           </div>
           <div className="space-y-2 text-xs text-slate-400">
             {weakRounds.length > 0 && (
-              <p>{t('coaching_tip_rounds')} {weakRounds.map((r) => `R${r.round}`).join(', ')}.</p>
+              <p>{t('coaching_tip_rounds')} {weakRounds.map((r) => `${t('round')} ${r.round}`).join(', ')}.</p>
             )}
             {weakActivities.length > 0 && (
               <p>{t('coaching_tip_activities')} {weakActivities.map((a) => a.name).join(', ')}.</p>
