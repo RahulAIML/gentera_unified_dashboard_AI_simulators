@@ -1,4 +1,4 @@
-import {
+﻿import {
   AreaChart,
   Area,
   XAxis,
@@ -13,15 +13,18 @@ import { es, enUS } from 'date-fns/locale'
 import type { TrendPoint } from '../../lib/analytics'
 import { PASS_THRESHOLD } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
+import { TooltipShell, TTitle, TRow, TDivider, useTooltipColors, type TooltipColors } from './TooltipShell'
 
 interface CustomTooltipProps {
   active?: boolean
   payload?: Array<{ value: number; payload: TrendPoint }>
   label?: string
   language: Language
+  c: TooltipColors
 }
 
-function CustomTooltip({ active, payload, label, language }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, label, language, c }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   const locale = language === 'es' ? es : enUS
@@ -32,21 +35,22 @@ function CustomTooltip({ active, payload, label, language }: CustomTooltipProps)
   } catch {}
 
   return (
-    <div className="tooltip-dark px-3 py-2.5 min-w-[140px]">
-      <p className="text-slate-500 text-xs mb-2">{formatted}</p>
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-slate-400 text-xs">{language === 'es' ? 'Puntaje' : 'Score'}</span>
-        <span className="text-accent font-semibold text-sm">{d.value}%</span>
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-slate-400 text-xs">{language === 'es' ? 'Sesiones' : 'Sessions'}</span>
-        <span className="text-slate-300 text-xs">{d.payload.count}</span>
-      </div>
-      <div className="flex items-center justify-between gap-4">
-        <span className="text-slate-400 text-xs">{language === 'es' ? 'Aprob.' : 'Pass'}</span>
-        <span className="text-success text-xs">{d.payload.passRate}%</span>
-      </div>
-    </div>
+    <TooltipShell minWidth={160} c={c}>
+      <TTitle text={formatted} c={c} />
+      <TDivider c={c} />
+      <TRow label={language === 'es' ? 'Puntaje' : 'Score'}
+            value={`${d.value}%`}
+            valueStyle={{ color: c.accent }}
+            c={c} />
+      <TRow label={language === 'es' ? 'Sesiones' : 'Sessions'}
+            value={d.payload.count}
+            valueStyle={{ color: c.value }}
+            c={c} />
+      <TRow label={language === 'es' ? 'Aprobación' : 'Pass Rate'}
+            value={`${d.payload.passRate}%`}
+            valueStyle={{ color: c.success }}
+            c={c} />
+    </TooltipShell>
   )
 }
 
@@ -58,6 +62,8 @@ interface Props {
 
 export function TrendChart({ data, language, height = 260 }: Props) {
   const locale = language === 'es' ? es : enUS
+  const c = useChartColors()
+  const tt = useTooltipColors()
 
   const formatted = data.map((d) => ({
     ...d,
@@ -82,13 +88,13 @@ export function TrendChart({ data, language, height = 260 }: Props) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           domain={[0, 100]}
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `${v}%`}
@@ -107,17 +113,18 @@ export function TrendChart({ data, language, height = 260 }: Props) {
           }}
         />
         <Tooltip
-          content={<CustomTooltip language={language} />}
-          cursor={{ stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1 }}
+          content={<CustomTooltip language={language} c={tt} />}
+          cursor={{ stroke: c.cursorStroke, strokeWidth: 1.5 }}
+          wrapperStyle={{ zIndex: 50, outline: 'none' }}
         />
         <Area
           type="monotone"
           dataKey="avgScore"
           stroke="#3B82F6"
-          strokeWidth={2}
+          strokeWidth={2.5}
           fill="url(#scoreGrad)"
           dot={{ fill: '#3B82F6', strokeWidth: 0, r: 3 }}
-          activeDot={{ r: 5, fill: '#3B82F6', stroke: '#0C1628', strokeWidth: 2 }}
+          activeDot={{ r: 6, fill: '#3B82F6', stroke: c.dotStroke, strokeWidth: 2.5 }}
         />
       </AreaChart>
     </ResponsiveContainer>

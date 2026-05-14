@@ -7,9 +7,13 @@ import {
   Trophy,
   Activity,
   Building2,
-  Sparkles,
   ChevronLeft,
   ChevronRight,
+  Mic2,
+  UserCheck,
+  GitBranch,
+  FileText,
+  Settings,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAppStore } from '../../store'
@@ -31,7 +35,7 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
     ],
   },
   {
-    labelKey: 'nav_analytics',
+    labelKey: 'nav_simulator',
     items: [
       { to: '/simulations', icon: PlayCircle, key: 'nav_simulations' },
       { to: '/conversational', icon: MessageSquare, key: 'nav_conversational' },
@@ -40,16 +44,31 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
     ],
   },
   {
+    labelKey: 'nav_roleplay_group',
+    items: [
+      { to: '/roleplay', icon: Mic2, key: 'nav_roleplay' },
+      { to: '/supervisors', icon: UserCheck, key: 'nav_supervisors' },
+    ],
+  },
+  {
     labelKey: 'nav_platform',
     items: [
       { to: '/activities', icon: Activity, key: 'nav_activities' },
       { to: '/organization', icon: Building2, key: 'nav_organization' },
+      { to: '/business-lines', icon: GitBranch, key: 'nav_business_lines' },
+    ],
+  },
+  {
+    labelKey: 'nav_more',
+    items: [
+      { to: '/reports', icon: FileText, key: 'nav_reports' },
+      { to: '/settings', icon: Settings, key: 'nav_settings' },
     ],
   },
 ]
 
 export function Sidebar() {
-  const { sidebarCollapsed, toggleSidebar, language, toggleAI } = useAppStore()
+  const { sidebarCollapsed, toggleSidebar, language } = useAppStore()
   const t = useTranslation(language)
   const collapsed = sidebarCollapsed
 
@@ -81,7 +100,7 @@ export function Sidebar() {
                   Gentera
                 </span>
                 <span className="text-slate-600 text-[10px] leading-tight whitespace-nowrap">
-                  Conversational Intelligence
+                  AI Training Intelligence
                 </span>
               </motion.div>
             )}
@@ -157,31 +176,6 @@ export function Sidebar() {
           </div>
         ))}
       </nav>
-
-      {/* AI Button */}
-      <div className="px-2 pb-2 border-t border-line/30 pt-3">
-        <button
-          onClick={toggleAI}
-          title={collapsed ? t('nav_ai_assistant') : undefined}
-          className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-500 hover:text-violet hover:bg-violet/5 transition-all duration-150 group"
-        >
-          <div className="w-4 h-4 shrink-0 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-violet opacity-70 group-hover:opacity-100 transition-opacity" />
-          </div>
-          <AnimatePresence>
-            {!collapsed && (
-              <motion.span
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                exit={{ opacity: 0 }}
-                className="font-medium whitespace-nowrap text-violet/80 group-hover:text-violet"
-              >
-                {t('nav_ai_assistant')}
-              </motion.span>
-            )}
-          </AnimatePresence>
-        </button>
-      </div>
 
       {/* Collapse toggle */}
       <button

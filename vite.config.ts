@@ -12,6 +12,31 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path,
       },
+      '/rplay': {
+        target: 'https://rolplay.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/rplay/, ''),
+      },
+    },
+  },
+  preview: {
+    host: '0.0.0.0',
+    port: parseInt(process.env.PORT ?? '4173'),
+    allowedHosts: ['dashboard-gentera.onrender.com'],
+    proxy: {
+      '/gentera': {
+        target: 'https://serv.aux-rolplay.com',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path,
+      },
+      '/rplay': {
+        target: 'https://rolplay.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/rplay/, ''),
+      },
     },
   },
 })

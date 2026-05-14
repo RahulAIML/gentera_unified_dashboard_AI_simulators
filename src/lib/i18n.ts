@@ -101,7 +101,7 @@ const t = {
 
     // AI Assistant
     ai_title: 'Asistente IA',
-    ai_subtitle: 'Impulsado por Gemini',
+    ai_subtitle: 'Impulsado por Rolplay',
     ai_placeholder: 'Pregunta sobre el rendimiento del equipo...',
     ai_greeting: '¡Hola! Soy tu asistente de inteligencia conversacional de Gentera. Puedo ayudarte a analizar el rendimiento del equipo, identificar áreas de mejora y generar perspectivas sobre las simulaciones. ¿En qué te puedo ayudar?',
     ai_no_key: 'Configura VITE_GEMINI_API_KEY en tu archivo .env para habilitar el Asistente IA.',
@@ -141,6 +141,81 @@ const t = {
     collapse: 'Colapsar',
     expand: 'Expandir',
     copy: 'Copiar',
+
+    // Roleplay Intelligence
+    nav_roleplay: 'Inteligencia Roleplay',
+    nav_supervisors: 'Supervisores',
+    nav_simulator: 'Simulador',
+    nav_roleplay_group: 'Roleplay',
+    nav_reports: 'Reportes',
+    nav_settings: 'Configuración',
+    nav_business_lines: 'Líneas de Negocio',
+    nav_more: 'Más',
+
+    page_lines_title: 'Líneas de Negocio',
+    page_lines_subtitle: 'Análisis por línea de producto',
+    lines_coming_title: 'Próximamente disponible',
+    lines_coming_desc: 'El módulo de Líneas de Negocio mostrará analytics segmentados por línea de producto una vez que los datos estén disponibles.',
+    lines_coming_note: 'La dimensión Linea actualmente no tiene registros activos en la API. Se activará automáticamente cuando existan datos.',
+
+    page_reports_title: 'Reportes',
+    page_reports_subtitle: 'Exportación y generación de reportes ejecutivos',
+
+    page_settings_title: 'Configuración',
+    page_settings_subtitle: 'Preferencias de la plataforma',
+
+    page_roleplay_title: 'Inteligencia Roleplay',
+    page_roleplay_subtitle: 'Análisis de sesiones de roleplay con IA conversacional',
+    page_supervisors_title: 'Supervisores',
+    page_supervisors_subtitle: 'Rendimiento por supervisor y sucursal',
+
+    rp_kpi_sessions: 'Sesiones Roleplay',
+    rp_kpi_sessions_sub: 'total de ejercicios',
+    rp_kpi_avg_score: 'Puntaje Promedio',
+    rp_kpi_avg_score_sub: 'puntos totales',
+    rp_kpi_users: 'Usuarios Activos',
+    rp_kpi_users_sub: 'con sesiones',
+    rp_kpi_branches: 'Sucursales Activas',
+    rp_kpi_branches_sub: 'con actividad',
+
+    rp_dim_robin: 'IA Robin',
+    rp_dim_facial: 'Expresión Facial',
+    rp_dim_voice: 'Voz',
+    rp_dim_wpm: 'Palabras/Min',
+
+    rp_score_trend: 'Tendencia de Puntaje',
+    rp_score_dimensions: 'Dimensiones de Evaluación',
+    rp_score_dimensions_sub: 'Promedio por categoría de IA',
+    rp_activity_breakdown: 'Desglose por Actividad',
+    rp_score_dist: 'Distribución de Puntajes',
+    rp_criteria_title: 'Cumplimiento de Criterios (MC)',
+    rp_criteria_sub: 'Porcentaje de criterios cumplidos por sesión',
+    rp_top_performers: 'Mejores Desempeños — Roleplay',
+    rp_sessions_label: 'sesiones',
+    rp_legend_total: 'Puntaje Total',
+
+    rp_col_branch: 'Sucursal',
+    rp_col_robin: 'Robin %',
+
+    rp_supervisors_section: 'Supervisores',
+    rp_branch_performance: 'Rendimiento por Sucursal',
+    rp_branch_performance_sub: 'Top 10 sucursales por volumen de sesiones',
+    rp_branch_table: 'Todas las Sucursales',
+
+    // Coaching page
+    coaching_strengths: 'Fortalezas',
+    coaching_improve: 'Áreas de Mejora',
+    coaching_tips: 'Consejos de Coaching',
+    coaching_all_above: 'Todos los asesores están por encima del umbral',
+    coaching_ai_title: 'Coaching con IA',
+    coaching_ai_desc: 'Usa el Asistente IA para obtener recomendaciones de coaching personalizadas, identificar debilidades del equipo y generar resúmenes ejecutivos.',
+    coaching_ai_cta: 'Abrir Asistente IA',
+    coaching_tip_rounds: 'Enfoca el entrenamiento en rondas con menor tasa de aprobación:',
+    coaching_tip_activities: 'Revisa el material para:',
+    coaching_tip_avg: 'El puntaje promedio de la plataforma es',
+    coaching_tip_avg2: '%. Establece el objetivo en',
+    coaching_tip_pass: 'La tasa de aprobación es',
+    coaching_tip_pass2: '%. Considera apoyo extra para asesores por debajo del 60%.',
   },
   en: {
     nav_overview: 'Overview',
@@ -233,7 +308,7 @@ const t = {
     page_detail_subtitle: 'Full conversational interaction analysis',
 
     ai_title: 'AI Assistant',
-    ai_subtitle: 'Powered by Gemini',
+    ai_subtitle: 'Powered by Rolplay',
     ai_placeholder: 'Ask about team performance...',
     ai_greeting: "Hello! I'm your Gentera Conversational Intelligence assistant. I can help you analyze team performance, identify improvement areas, and generate insights about simulations. How can I help?",
     ai_no_key: 'Set VITE_GEMINI_API_KEY in your .env file to enable the AI Assistant.',
@@ -272,6 +347,81 @@ const t = {
     collapse: 'Collapse',
     expand: 'Expand',
     copy: 'Copy',
+
+    // Roleplay Intelligence
+    nav_roleplay: 'Roleplay Intelligence',
+    nav_supervisors: 'Supervisors',
+    nav_simulator: 'Simulator',
+    nav_roleplay_group: 'Roleplay',
+    nav_reports: 'Reports',
+    nav_settings: 'Settings',
+    nav_business_lines: 'Business Lines',
+    nav_more: 'More',
+
+    page_lines_title: 'Business Lines',
+    page_lines_subtitle: 'Analytics by product line',
+    lines_coming_title: 'Coming soon',
+    lines_coming_desc: 'The Business Lines module will show segmented analytics by product line once data is available.',
+    lines_coming_note: 'The Linea dimension currently has no active records in the API. It will activate automatically when data exists.',
+
+    page_reports_title: 'Reports',
+    page_reports_subtitle: 'Export and generate executive reports',
+
+    page_settings_title: 'Settings',
+    page_settings_subtitle: 'Platform preferences',
+
+    page_roleplay_title: 'Roleplay Intelligence',
+    page_roleplay_subtitle: 'AI-driven conversational roleplay session analytics',
+    page_supervisors_title: 'Supervisors',
+    page_supervisors_subtitle: 'Performance by supervisor and branch',
+
+    rp_kpi_sessions: 'Roleplay Sessions',
+    rp_kpi_sessions_sub: 'total exercises',
+    rp_kpi_avg_score: 'Average Score',
+    rp_kpi_avg_score_sub: 'total points',
+    rp_kpi_users: 'Active Users',
+    rp_kpi_users_sub: 'with sessions',
+    rp_kpi_branches: 'Active Branches',
+    rp_kpi_branches_sub: 'with activity',
+
+    rp_dim_robin: 'AI Robin',
+    rp_dim_facial: 'Facial Expr.',
+    rp_dim_voice: 'Voice',
+    rp_dim_wpm: 'Words/Min',
+
+    rp_score_trend: 'Score Trend',
+    rp_score_dimensions: 'Evaluation Dimensions',
+    rp_score_dimensions_sub: 'Average per AI scoring category',
+    rp_activity_breakdown: 'Activity Breakdown',
+    rp_score_dist: 'Score Distribution',
+    rp_criteria_title: 'Criteria Fulfillment (MC)',
+    rp_criteria_sub: 'Percentage of criteria met per session',
+    rp_top_performers: 'Top Performers — Roleplay',
+    rp_sessions_label: 'sessions',
+    rp_legend_total: 'Total Score',
+
+    rp_col_branch: 'Branch',
+    rp_col_robin: 'Robin %',
+
+    rp_supervisors_section: 'Supervisors',
+    rp_branch_performance: 'Branch Performance',
+    rp_branch_performance_sub: 'Top 10 branches by session volume',
+    rp_branch_table: 'All Branches',
+
+    // Coaching page
+    coaching_strengths: 'Strengths',
+    coaching_improve: 'Areas to Improve',
+    coaching_tips: 'Coaching Tips',
+    coaching_all_above: 'All advisors above threshold',
+    coaching_ai_title: 'AI-Powered Coaching',
+    coaching_ai_desc: 'Use the AI Assistant to get personalized coaching recommendations, identify team weaknesses, and generate executive summaries.',
+    coaching_ai_cta: 'Open AI Assistant',
+    coaching_tip_rounds: 'Focus training on rounds with lower pass rates:',
+    coaching_tip_activities: 'Review material for:',
+    coaching_tip_avg: 'Average platform score is',
+    coaching_tip_avg2: '%. Set target at',
+    coaching_tip_pass: 'Pass rate is',
+    coaching_tip_pass2: '%. Consider extra support for advisors below 60%.',
   },
 } as const
 

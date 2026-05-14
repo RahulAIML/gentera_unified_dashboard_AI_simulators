@@ -1,4 +1,4 @@
-import {
+﻿import {
   BarChart,
   Bar,
   XAxis,
@@ -11,6 +11,8 @@ import {
 } from 'recharts'
 import type { ActivityStat } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
+import { TooltipShell, TTitle, TRow, TDivider, useTooltipColors, type TooltipColors } from './TooltipShell'
 
 const COLORS = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#06B6D4', '#EF4444']
 
@@ -18,29 +20,29 @@ interface CustomTooltipProps {
   active?: boolean
   payload?: Array<{ value: number; payload: ActivityStat }>
   language: Language
+  c: TooltipColors
 }
 
-function CustomTooltip({ active, payload, language }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, language, c }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0].payload
   return (
-    <div className="tooltip-dark px-3 py-2.5 min-w-[180px]">
-      <p className="text-slate-200 text-xs font-medium mb-2 leading-relaxed">{d.name}</p>
-      <div className="space-y-1">
-        <div className="flex justify-between gap-4">
-          <span className="text-slate-500 text-xs">{language === 'es' ? 'Sesiones' : 'Sessions'}</span>
-          <span className="text-slate-200 text-xs font-medium">{d.count}</span>
-        </div>
-        <div className="flex justify-between gap-4">
-          <span className="text-slate-500 text-xs">{language === 'es' ? 'Prom. Puntaje' : 'Avg Score'}</span>
-          <span className="text-accent text-xs font-medium">{d.avgScore}%</span>
-        </div>
-        <div className="flex justify-between gap-4">
-          <span className="text-slate-500 text-xs">{language === 'es' ? 'Aprob.' : 'Pass Rate'}</span>
-          <span className="text-success text-xs font-medium">{d.passRate}%</span>
-        </div>
-      </div>
-    </div>
+    <TooltipShell minWidth={192} c={c}>
+      <TTitle text={d.name} c={c} />
+      <TDivider c={c} />
+      <TRow label={language === 'es' ? 'Sesiones' : 'Sessions'}
+            value={d.count}
+            valueStyle={{ color: c.value }}
+            c={c} />
+      <TRow label={language === 'es' ? 'Prom. Puntaje' : 'Avg Score'}
+            value={`${d.avgScore}%`}
+            valueStyle={{ color: c.accent }}
+            c={c} />
+      <TRow label={language === 'es' ? 'Tasa Aprob.' : 'Pass Rate'}
+            value={`${d.passRate}%`}
+            valueStyle={{ color: c.success }}
+            c={c} />
+    </TooltipShell>
   )
 }
 
@@ -52,12 +54,8 @@ interface Props {
 }
 
 export function ActivityBar({ data, language, metric = 'avgScore', height = 200 }: Props) {
-  const label =
-    metric === 'count'
-      ? (language === 'es' ? 'Sesiones' : 'Sessions')
-      : metric === 'avgScore'
-      ? (language === 'es' ? 'Puntaje Promedio (%)' : 'Avg Score (%)')
-      : (language === 'es' ? 'Tasa de Aprobación (%)' : 'Pass Rate (%)')
+  const c = useChartColors()
+  const tt = useTooltipColors()
 
   const shortName = (name: string) => {
     if (name.length <= 18) return name
@@ -81,7 +79,7 @@ export function ActivityBar({ data, language, metric = 'avgScore', height = 200 
         <XAxis
           type="number"
           domain={metric === 'count' ? [0, 'dataMax'] : [0, 100]}
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
           tickFormatter={metric !== 'count' ? (v) => `${v}%` : undefined}
@@ -90,17 +88,21 @@ export function ActivityBar({ data, language, metric = 'avgScore', height = 200 
           type="category"
           dataKey="shortName"
           width={130}
-          tick={{ fontSize: 11, fill: '#94a3b8' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
-        <Tooltip content={<CustomTooltip language={language} />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+        <Tooltip
+          content={<CustomTooltip language={language} c={tt} />}
+          cursor={{ fill: c.cursorFill }}
+          wrapperStyle={{ zIndex: 50, outline: 'none' }}
+        />
         <Bar dataKey={metric} radius={[0, 4, 4, 0]}>
           <LabelList
             dataKey={metric}
             position="right"
             formatter={(v: number) => metric !== 'count' ? `${v}%` : v}
-            style={{ fill: '#64748b', fontSize: 11 }}
+            style={{ fill: c.labelList, fontSize: 11 }}
           />
           {formatted.map((_, i) => (
             <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.85} />

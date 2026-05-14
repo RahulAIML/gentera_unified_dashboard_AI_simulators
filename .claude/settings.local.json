@@ -1,7 +1,32 @@
 {
   "permissions": {
     "allow": [
-      "WebFetch(domain:serv.aux-rolplay.com)"
+      "WebFetch(domain:serv.aux-rolplay.com)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\" -Directory -Force)",
+      "Bash(Select-Object -ExpandProperty Name)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(git commit -m 'Security: block all .env files in gitignore *)",
+      "Bash(git commit -m 'Fix: replace @apply border-line/60 with raw CSS for CSS variable compatibility *)",
+      "Bash(git commit -m 'Fix: configure vite preview for Render deployment *)",
+      "Bash(git commit -m 'Fix: set allowedHosts to '\\\\''all'\\\\'' to allow Render domain *)",
+      "Bash(git commit *)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\\\\src\" -Recurse -Directory)",
+      "Bash(Select-Object FullName)",
+      "Bash(Format-List)",
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\\\\src\" -Recurse | Where-Object { $_.PSIsContainer -or $_.Extension -match '\\\\.\\(ts|tsx|js|jsx\\)$' } | Select-Object FullName)",
+      "Bash(npm install *)",
+      "Bash(npm run *)",
+      "Bash(Set-Content src\\\\components\\\\ai\\\\AIAssistant.tsx)",
+      "PowerShell(\\(Get-Content \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\\\\src\\\\components\\\\ai\\\\AIAssistant.tsx\"\\) | Set-Content \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\\\\src\\\\components\\\\ai\\\\AIAssistant.tsx\" -Encoding utf8)",
+      "Bash(git checkout *)",
+      "WebFetch(domain:rolplay.net)",
+      "Bash(Get-ChildItem -Path \"D:\\\\Gentera_Unified_dashboard\\\\.claude\\\\worktrees\\\\condescending-bouman-0e6f66\\\\src\" -Recurse)",
+      "Bash(Select-Object -Property FullName)",
+      "Bash(ConvertTo-Csv -NoTypeInformation)",
+      "Bash(Out-String)"
     ]
   }
 }

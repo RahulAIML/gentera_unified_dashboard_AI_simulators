@@ -1,14 +1,15 @@
 import { useDashboardData } from '../hooks/useDashboardData'
+import { useFactRolPlayRub } from '../api/roleplayQueries'
+import { computeRpKPIs } from '../lib/roleplayAnalytics'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
 import {
   BarChart3,
   PlayCircle,
   CheckCircle2,
-  XCircle,
   Users,
-  Activity,
-  Trophy,
+  Brain,
+  Mic2,
 } from 'lucide-react'
 import {
   AreaChart,
@@ -37,6 +38,8 @@ export default function OverviewPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
   const { isLoading, isError, kpis, trend, scoreDist, actStats, userStats, refetch } = useDashboardData()
+  const rpFact = useFactRolPlayRub()
+  const rpKpis = rpFact.data?.length ? computeRpKPIs(rpFact.data, []) : null
 
   if (isLoading) {
     return (
@@ -83,13 +86,35 @@ export default function OverviewPage() {
         <p className="text-slate-500 text-sm mt-0.5">{t('page_overview_subtitle')}</p>
       </div>
 
-      {/* KPIs */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        <KpiCard icon={PlayCircle} label={t('kpi_total_sims')} value={kpis.totalSimulations} sub={t('sub_across_activities')} color="accent" />
-        <KpiCard icon={BarChart3} label={t('kpi_avg_score')} value={`${kpis.averageScore}%`} sub={t('sub_overall')} color="violet" />
-        <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')} value={`${kpis.passRate}%`} sub={t('sub_sessions_passed')} color="pass" />
-        <KpiCard icon={Users} label={t('kpi_active_advisors')} value={kpis.activeAdvisors} sub={t('sub_with_simulations')} color="indigo" />
+      {/* Simulator KPIs */}
+      <div>
+        <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-1.5">
+          <PlayCircle className="w-3 h-3" />
+          {language === 'es' ? 'Simulador' : 'Simulator'}
+        </p>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KpiCard icon={PlayCircle} label={t('kpi_total_sims')} value={kpis.totalSimulations} sub={t('sub_across_activities')} color="accent" />
+          <KpiCard icon={BarChart3} label={t('kpi_avg_score')} value={`${kpis.averageScore}%`} sub={t('sub_overall')} color="violet" />
+          <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')} value={`${kpis.passRate}%`} sub={t('sub_sessions_passed')} color="pass" />
+          <KpiCard icon={Users} label={t('kpi_active_advisors')} value={kpis.activeAdvisors} sub={t('sub_with_simulations')} color="indigo" />
+        </div>
       </div>
+
+      {/* Roleplay KPIs */}
+      {rpKpis && (
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-1.5">
+            <Mic2 className="w-3 h-3" />
+            {language === 'es' ? 'Roleplay IA' : 'Roleplay AI'}
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <KpiCard icon={Mic2} label={t('rp_kpi_sessions')} value={rpKpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')} color="violet" />
+            <KpiCard icon={Brain} label={t('rp_dim_robin')} value={`${rpKpis.avgRobinPct}%`} sub={language === 'es' ? 'promedio IA' : 'AI avg'} color="indigo" />
+            <KpiCard icon={BarChart3} label={t('rp_kpi_avg_score')} value={`${rpKpis.avgTotalScore}`} sub={t('rp_kpi_avg_score_sub')} color="accent" />
+            <KpiCard icon={Users} label={t('rp_kpi_users')} value={rpKpis.activeUsers} sub={t('rp_kpi_users_sub')} color="pass" />
+          </div>
+        </div>
+      )}
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">

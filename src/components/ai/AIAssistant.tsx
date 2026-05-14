@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Send, Sparkles, Bot, User, Trash2 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useAppStore } from '../../store'
 import { useTranslation } from '../../lib/i18n'
 import { useDashboardData } from '../../hooks/useDashboardData'
@@ -25,7 +26,12 @@ export function AIAssistant() {
   }, [messages, thinking])
 
   const handleSend = async () => {
-    if (!input.trim() || thinking || isLoading || !kpis) return
+    // Guard log — tells us exactly why a send was blocked
+    if (!input.trim())  { console.warn('[AI] Blocked: empty input');        return }
+    if (thinking)       { console.warn('[AI] Blocked: already thinking');   return }
+    if (isLoading)      { console.warn('[AI] Blocked: dashboard data still loading'); return }
+    if (!kpis)          { console.warn('[AI] Blocked: kpis not ready');     return }
+
     const userText = input.trim()
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: userText }])
@@ -34,24 +40,45 @@ export function AIAssistant() {
     const context = buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [])
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
+    console.group('[AI] handleSend')
+    console.log('API key present:', !!apiKey, '| key prefix:', apiKey ? apiKey.slice(0, 8) + '...' : 'MISSING')
+    console.log('Language:', language)
+    console.log('Context length (chars):', context.length)
+    console.log('Question:', userText)
+    console.groupEnd()
+
     if (!apiKey) {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'model', text: t('ai_no_key') },
-      ])
+      console.error('[AI] VITE_GEMINI_API_KEY is not set — check Render Environment Variables and redeploy')
+      setMessages((prev) => [...prev, { role: 'model', text: t('ai_no_key') }])
       setThinking(false)
       return
     }
 
     try {
+      console.log('[AI] Importing @google/generative-ai ...')
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
+      console.log('[AI] SDK loaded. Initialising gemini-2.5-flash ...')
       const genAI = new GoogleGenerativeAI(apiKey)
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
       const prompt = `${context}\n\nUser question (${language === 'es' ? 'Spanish' : 'English'}): ${userText}\n\nRespond in ${language === 'es' ? 'Spanish' : 'English'}. Be concise, data-driven, and actionable. Use bullet points when appropriate.`
+      console.log('[AI] Sending prompt — total length:', prompt.length, 'chars')
+      const t0 = performance.now()
       const result = await model.generateContent(prompt)
+      const elapsed = Math.round(performance.now() - t0)
       const text = result.response.text()
+      console.log(`[AI] ✅ Response in ${elapsed}ms`, {
+        inputTokens:  result.response.usageMetadata?.promptTokenCount,
+        outputTokens: result.response.usageMetadata?.candidatesTokenCount,
+        finishReason: result.response.candidates?.[0]?.finishReason,
+        responseChars: text.length,
+      })
       setMessages((prev) => [...prev, { role: 'model', text }])
-    } catch {
+    } catch (err: unknown) {
+      const e = err as { message?: string; status?: number; statusText?: string }
+      console.error('[AI] ❌ Request failed')
+      console.error('  message   :', e?.message)
+      console.error('  HTTP status:', e?.status, e?.statusText)
+      console.error('  full error :', err)
       setMessages((prev) => [...prev, { role: 'model', text: t('ai_error') }])
     } finally {
       setThinking(false)
@@ -61,7 +88,26 @@ export function AIAssistant() {
   const greeting = t('ai_greeting')
 
   return (
-    <AnimatePresence>
+    <>
+      {/* Floating bubble button */}
+      <AnimatePresence>
+        {!aiOpen && (
+          <motion.button
+            key="ai-bubble"
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={toggleAI}
+            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-accent shadow-elevated flex items-center justify-center hover:bg-blue-400 transition-colors"
+            title={t('nav_ai_assistant')}
+          >
+            <Sparkles className="w-6 h-6 text-white" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
       {aiOpen && (
         <motion.div
           initial={{ opacity: 0, x: 320 }}
@@ -122,7 +168,24 @@ export function AIAssistant() {
                       : 'bg-card text-slate-300 border-line/30 rounded-tl-none'
                   }`}
                 >
-                  {m.text}
+                  {m.role === 'user' ? m.text : (
+                    <ReactMarkdown
+                      components={{
+                        p:      ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                        ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                        ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                        li:     ({ children }) => <li>{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
+                        em:     ({ children }) => <em className="italic text-slate-300">{children}</em>,
+                        code:   ({ children }) => <code className="bg-white/10 rounded px-1 py-0.5 text-xs font-mono text-accent">{children}</code>,
+                        h1:     ({ children }) => <h1 className="font-bold text-slate-100 text-base mb-1">{children}</h1>,
+                        h2:     ({ children }) => <h2 className="font-semibold text-slate-100 text-sm mb-1">{children}</h2>,
+                        h3:     ({ children }) => <h3 className="font-medium text-slate-200 text-sm mb-1">{children}</h3>,
+                      }}
+                    >
+                      {m.text}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 {m.role === 'user' && (
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
@@ -169,6 +232,7 @@ export function AIAssistant() {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   )
 }

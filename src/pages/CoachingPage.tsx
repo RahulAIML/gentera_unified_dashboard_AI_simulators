@@ -45,7 +45,7 @@ export default function CoachingPage() {
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <TrendingUp className="w-4 h-4 text-success" />
-            <h3 className="text-sm font-semibold text-slate-200">Strengths</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t('coaching_strengths')}</h3>
           </div>
           <div className="space-y-2">
             {(userStats ?? []).slice(0, 5).map((u) => (
@@ -61,7 +61,7 @@ export default function CoachingPage() {
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <AlertTriangle className="w-4 h-4 text-warning" />
-            <h3 className="text-sm font-semibold text-slate-200">Areas to Improve</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t('coaching_improve')}</h3>
           </div>
           <div className="space-y-2">
             {lowPerformers.length > 0 ? (
@@ -72,7 +72,7 @@ export default function CoachingPage() {
                 </div>
               ))
             ) : (
-              <p className="text-xs text-slate-500 text-center py-4">All advisors above threshold</p>
+              <p className="text-xs text-slate-500 text-center py-4">{t('coaching_all_above')}</p>
             )}
           </div>
         </div>
@@ -81,17 +81,17 @@ export default function CoachingPage() {
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
             <Lightbulb className="w-4 h-4 text-accent" />
-            <h3 className="text-sm font-semibold text-slate-200">Coaching Tips</h3>
+            <h3 className="text-sm font-semibold text-slate-200">{t('coaching_tips')}</h3>
           </div>
           <div className="space-y-2 text-xs text-slate-400">
             {weakRounds.length > 0 && (
-              <p>Focus training on rounds with lower pass rates: {weakRounds.map((r) => `R${r.round}`).join(', ')}.</p>
+              <p>{t('coaching_tip_rounds')} {weakRounds.map((r) => `R${r.round}`).join(', ')}.</p>
             )}
             {weakActivities.length > 0 && (
-              <p>Review material for: {weakActivities.map((a) => a.name).join(', ')}.</p>
+              <p>{t('coaching_tip_activities')} {weakActivities.map((a) => a.name).join(', ')}.</p>
             )}
-            <p>Average platform score is {kpis.averageScore}%. Set target at {Math.min(100, kpis.averageScore + 10)}%.</p>
-            <p>Pass rate is {kpis.passRate}%. Consider extra support for advisors below 60%.</p>
+            <p>{t('coaching_tip_avg')} {kpis.averageScore}{t('coaching_tip_avg2')} {Math.min(100, kpis.averageScore + 10)}%.</p>
+            <p>{t('coaching_tip_pass')} {kpis.passRate}{t('coaching_tip_pass2')}</p>
           </div>
         </div>
       </div>
@@ -99,13 +99,13 @@ export default function CoachingPage() {
       {/* AI CTA */}
       <div className="card p-6 text-center">
         <Brain className="w-8 h-8 text-violet mx-auto mb-3" />
-        <h3 className="text-base font-semibold text-slate-200 mb-1">AI-Powered Coaching</h3>
-        <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">Use the AI Assistant to get personalized coaching recommendations, identify team weaknesses, and generate executive summaries.</p>
+        <h3 className="text-base font-semibold text-slate-200 mb-1">{t('coaching_ai_title')}</h3>
+        <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">{t('coaching_ai_desc')}</p>
         <button
           onClick={() => useAppStore.getState().toggleAI()}
           className="btn-primary mx-auto"
         >
-          Open AI Assistant
+          {t('coaching_ai_cta')}
         </button>
       </div>
     </div>
