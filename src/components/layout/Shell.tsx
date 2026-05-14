@@ -1,9 +1,21 @@
-import type { ReactNode } from 'react'
+import { useEffect, type ReactNode } from 'react'
 import { Sidebar } from './Sidebar'
 import { TopBar } from './TopBar'
 import { AIAssistant } from '../ai/AIAssistant'
+import { useAppStore } from '../../store'
 
 export function Shell({ children }: { children: ReactNode }) {
+  const theme = useAppStore((s) => s.theme)
+
+  useEffect(() => {
+    const html = document.documentElement
+    if (theme === 'dark') {
+      html.classList.add('dark')
+    } else {
+      html.classList.remove('dark')
+    }
+  }, [theme])
+
   return (
     <div className="flex h-screen overflow-hidden bg-bg">
       <Sidebar />

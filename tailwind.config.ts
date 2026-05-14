@@ -2,15 +2,16 @@ import type { Config } from 'tailwindcss'
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        bg: '#070E1C',
-        surface: '#0C1628',
-        card: '#0F1A2E',
-        'card-hover': '#152035',
-        line: '#1A2D45',
-        'line-subtle': '#112038',
+        bg: 'var(--color-bg)',
+        surface: 'var(--color-surface)',
+        card: 'var(--color-card)',
+        'card-hover': 'var(--color-card-hover)',
+        line: 'var(--color-line)',
+        'line-subtle': 'var(--color-line-subtle)',
         accent: '#3B82F6',
         success: '#10B981',
         warning: '#F59E0B',

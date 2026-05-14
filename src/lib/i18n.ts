@@ -141,6 +141,21 @@ const t = {
     collapse: 'Colapsar',
     expand: 'Expandir',
     copy: 'Copiar',
+
+    // Coaching page
+    coaching_strengths: 'Fortalezas',
+    coaching_improve: 'Áreas de Mejora',
+    coaching_tips: 'Consejos de Coaching',
+    coaching_all_above: 'Todos los asesores están por encima del umbral',
+    coaching_ai_title: 'Coaching con IA',
+    coaching_ai_desc: 'Usa el Asistente IA para obtener recomendaciones de coaching personalizadas, identificar debilidades del equipo y generar resúmenes ejecutivos.',
+    coaching_ai_cta: 'Abrir Asistente IA',
+    coaching_tip_rounds: 'Enfoca el entrenamiento en rondas con menor tasa de aprobación:',
+    coaching_tip_activities: 'Revisa el material para:',
+    coaching_tip_avg: 'El puntaje promedio de la plataforma es',
+    coaching_tip_avg2: '%. Establece el objetivo en',
+    coaching_tip_pass: 'La tasa de aprobación es',
+    coaching_tip_pass2: '%. Considera apoyo extra para asesores por debajo del 60%.',
   },
   en: {
     nav_overview: 'Overview',
@@ -272,6 +287,21 @@ const t = {
     collapse: 'Collapse',
     expand: 'Expand',
     copy: 'Copy',
+
+    // Coaching page
+    coaching_strengths: 'Strengths',
+    coaching_improve: 'Areas to Improve',
+    coaching_tips: 'Coaching Tips',
+    coaching_all_above: 'All advisors above threshold',
+    coaching_ai_title: 'AI-Powered Coaching',
+    coaching_ai_desc: 'Use the AI Assistant to get personalized coaching recommendations, identify team weaknesses, and generate executive summaries.',
+    coaching_ai_cta: 'Open AI Assistant',
+    coaching_tip_rounds: 'Focus training on rounds with lower pass rates:',
+    coaching_tip_activities: 'Review material for:',
+    coaching_tip_avg: 'Average platform score is',
+    coaching_tip_avg2: '%. Set target at',
+    coaching_tip_pass: 'Pass rate is',
+    coaching_tip_pass2: '%. Consider extra support for advisors below 60%.',
   },
 } as const
 
