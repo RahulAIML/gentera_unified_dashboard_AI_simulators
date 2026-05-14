@@ -147,6 +147,22 @@ const t = {
     nav_supervisors: 'Supervisores',
     nav_simulator: 'Simulador',
     nav_roleplay_group: 'Roleplay',
+    nav_reports: 'Reportes',
+    nav_settings: 'Configuración',
+    nav_business_lines: 'Líneas de Negocio',
+    nav_more: 'Más',
+
+    page_lines_title: 'Líneas de Negocio',
+    page_lines_subtitle: 'Análisis por línea de producto',
+    lines_coming_title: 'Próximamente disponible',
+    lines_coming_desc: 'El módulo de Líneas de Negocio mostrará analytics segmentados por línea de producto una vez que los datos estén disponibles.',
+    lines_coming_note: 'La dimensión Linea actualmente no tiene registros activos en la API. Se activará automáticamente cuando existan datos.',
+
+    page_reports_title: 'Reportes',
+    page_reports_subtitle: 'Exportación y generación de reportes ejecutivos',
+
+    page_settings_title: 'Configuración',
+    page_settings_subtitle: 'Preferencias de la plataforma',
 
     page_roleplay_title: 'Inteligencia Roleplay',
     page_roleplay_subtitle: 'Análisis de sesiones de roleplay con IA conversacional',
@@ -337,6 +353,22 @@ const t = {
     nav_supervisors: 'Supervisors',
     nav_simulator: 'Simulator',
     nav_roleplay_group: 'Roleplay',
+    nav_reports: 'Reports',
+    nav_settings: 'Settings',
+    nav_business_lines: 'Business Lines',
+    nav_more: 'More',
+
+    page_lines_title: 'Business Lines',
+    page_lines_subtitle: 'Analytics by product line',
+    lines_coming_title: 'Coming soon',
+    lines_coming_desc: 'The Business Lines module will show segmented analytics by product line once data is available.',
+    lines_coming_note: 'The Linea dimension currently has no active records in the API. It will activate automatically when data exists.',
+
+    page_reports_title: 'Reports',
+    page_reports_subtitle: 'Export and generate executive reports',
+
+    page_settings_title: 'Settings',
+    page_settings_subtitle: 'Platform preferences',
 
     page_roleplay_title: 'Roleplay Intelligence',
     page_roleplay_subtitle: 'AI-driven conversational roleplay session analytics',

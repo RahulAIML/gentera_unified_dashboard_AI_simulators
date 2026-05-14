@@ -11,6 +11,9 @@ import {
   ChevronRight,
   Mic2,
   UserCheck,
+  GitBranch,
+  FileText,
+  Settings,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAppStore } from '../../store'
@@ -52,6 +55,14 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
     items: [
       { to: '/activities', icon: Activity, key: 'nav_activities' },
       { to: '/organization', icon: Building2, key: 'nav_organization' },
+      { to: '/business-lines', icon: GitBranch, key: 'nav_business_lines' },
+    ],
+  },
+  {
+    labelKey: 'nav_more',
+    items: [
+      { to: '/reports', icon: FileText, key: 'nav_reports' },
+      { to: '/settings', icon: Settings, key: 'nav_settings' },
     ],
   },
 ]
