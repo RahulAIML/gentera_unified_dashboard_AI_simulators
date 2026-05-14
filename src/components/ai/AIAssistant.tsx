@@ -88,7 +88,26 @@ export function AIAssistant() {
   const greeting = t('ai_greeting')
 
   return (
-    <AnimatePresence>
+    <>
+      {/* Floating bubble button */}
+      <AnimatePresence>
+        {!aiOpen && (
+          <motion.button
+            key="ai-bubble"
+            initial={{ opacity: 0, scale: 0.6 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.6 }}
+            transition={{ type: 'spring', stiffness: 400, damping: 25 }}
+            onClick={toggleAI}
+            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-accent shadow-elevated flex items-center justify-center hover:bg-blue-400 transition-colors"
+            title={t('nav_ai_assistant')}
+          >
+            <Sparkles className="w-6 h-6 text-white" />
+          </motion.button>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
       {aiOpen && (
         <motion.div
           initial={{ opacity: 0, x: 320 }}
@@ -213,6 +232,7 @@ export function AIAssistant() {
           </div>
         </motion.div>
       )}
-    </AnimatePresence>
+      </AnimatePresence>
+    </>
   )
 }

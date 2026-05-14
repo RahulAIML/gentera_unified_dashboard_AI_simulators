@@ -101,7 +101,7 @@ const t = {
 
     // AI Assistant
     ai_title: 'Asistente IA',
-    ai_subtitle: 'Impulsado por Gemini',
+    ai_subtitle: 'Impulsado por Rolplay',
     ai_placeholder: 'Pregunta sobre el rendimiento del equipo...',
     ai_greeting: '¡Hola! Soy tu asistente de inteligencia conversacional de Gentera. Puedo ayudarte a analizar el rendimiento del equipo, identificar áreas de mejora y generar perspectivas sobre las simulaciones. ¿En qué te puedo ayudar?',
     ai_no_key: 'Configura VITE_GEMINI_API_KEY en tu archivo .env para habilitar el Asistente IA.',
@@ -248,7 +248,7 @@ const t = {
     page_detail_subtitle: 'Full conversational interaction analysis',
 
     ai_title: 'AI Assistant',
-    ai_subtitle: 'Powered by Gemini',
+    ai_subtitle: 'Powered by Rolplay',
     ai_placeholder: 'Ask about team performance...',
     ai_greeting: "Hello! I'm your Gentera Conversational Intelligence assistant. I can help you analyze team performance, identify improvement areas, and generate insights about simulations. How can I help?",
     ai_no_key: 'Set VITE_GEMINI_API_KEY in your .env file to enable the AI Assistant.',
