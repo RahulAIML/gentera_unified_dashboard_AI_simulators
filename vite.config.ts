@@ -12,6 +12,12 @@ export default defineConfig({
         secure: true,
         rewrite: (path) => path,
       },
+      '/rplay': {
+        target: 'https://rolplay.net',
+        changeOrigin: true,
+        secure: true,
+        rewrite: (path) => path.replace(/^\/rplay/, ''),
+      },
     },
   },
   preview: {

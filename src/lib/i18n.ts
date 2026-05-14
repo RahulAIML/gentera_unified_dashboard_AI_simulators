@@ -142,6 +142,50 @@ const t = {
     expand: 'Expandir',
     copy: 'Copiar',
 
+    // Roleplay Intelligence
+    nav_roleplay: 'Inteligencia Roleplay',
+    nav_supervisors: 'Supervisores',
+    nav_simulator: 'Simulador',
+    nav_roleplay_group: 'Roleplay',
+
+    page_roleplay_title: 'Inteligencia Roleplay',
+    page_roleplay_subtitle: 'Análisis de sesiones de roleplay con IA conversacional',
+    page_supervisors_title: 'Supervisores',
+    page_supervisors_subtitle: 'Rendimiento por supervisor y sucursal',
+
+    rp_kpi_sessions: 'Sesiones Roleplay',
+    rp_kpi_sessions_sub: 'total de ejercicios',
+    rp_kpi_avg_score: 'Puntaje Promedio',
+    rp_kpi_avg_score_sub: 'puntos totales',
+    rp_kpi_users: 'Usuarios Activos',
+    rp_kpi_users_sub: 'con sesiones',
+    rp_kpi_branches: 'Sucursales Activas',
+    rp_kpi_branches_sub: 'con actividad',
+
+    rp_dim_robin: 'IA Robin',
+    rp_dim_facial: 'Expresión Facial',
+    rp_dim_voice: 'Voz',
+    rp_dim_wpm: 'Palabras/Min',
+
+    rp_score_trend: 'Tendencia de Puntaje',
+    rp_score_dimensions: 'Dimensiones de Evaluación',
+    rp_score_dimensions_sub: 'Promedio por categoría de IA',
+    rp_activity_breakdown: 'Desglose por Actividad',
+    rp_score_dist: 'Distribución de Puntajes',
+    rp_criteria_title: 'Cumplimiento de Criterios (MC)',
+    rp_criteria_sub: 'Porcentaje de criterios cumplidos por sesión',
+    rp_top_performers: 'Mejores Desempeños — Roleplay',
+    rp_sessions_label: 'sesiones',
+    rp_legend_total: 'Puntaje Total',
+
+    rp_col_branch: 'Sucursal',
+    rp_col_robin: 'Robin %',
+
+    rp_supervisors_section: 'Supervisores',
+    rp_branch_performance: 'Rendimiento por Sucursal',
+    rp_branch_performance_sub: 'Top 10 sucursales por volumen de sesiones',
+    rp_branch_table: 'Todas las Sucursales',
+
     // Coaching page
     coaching_strengths: 'Fortalezas',
     coaching_improve: 'Áreas de Mejora',
@@ -287,6 +331,50 @@ const t = {
     collapse: 'Collapse',
     expand: 'Expand',
     copy: 'Copy',
+
+    // Roleplay Intelligence
+    nav_roleplay: 'Roleplay Intelligence',
+    nav_supervisors: 'Supervisors',
+    nav_simulator: 'Simulator',
+    nav_roleplay_group: 'Roleplay',
+
+    page_roleplay_title: 'Roleplay Intelligence',
+    page_roleplay_subtitle: 'AI-driven conversational roleplay session analytics',
+    page_supervisors_title: 'Supervisors',
+    page_supervisors_subtitle: 'Performance by supervisor and branch',
+
+    rp_kpi_sessions: 'Roleplay Sessions',
+    rp_kpi_sessions_sub: 'total exercises',
+    rp_kpi_avg_score: 'Average Score',
+    rp_kpi_avg_score_sub: 'total points',
+    rp_kpi_users: 'Active Users',
+    rp_kpi_users_sub: 'with sessions',
+    rp_kpi_branches: 'Active Branches',
+    rp_kpi_branches_sub: 'with activity',
+
+    rp_dim_robin: 'AI Robin',
+    rp_dim_facial: 'Facial Expr.',
+    rp_dim_voice: 'Voice',
+    rp_dim_wpm: 'Words/Min',
+
+    rp_score_trend: 'Score Trend',
+    rp_score_dimensions: 'Evaluation Dimensions',
+    rp_score_dimensions_sub: 'Average per AI scoring category',
+    rp_activity_breakdown: 'Activity Breakdown',
+    rp_score_dist: 'Score Distribution',
+    rp_criteria_title: 'Criteria Fulfillment (MC)',
+    rp_criteria_sub: 'Percentage of criteria met per session',
+    rp_top_performers: 'Top Performers — Roleplay',
+    rp_sessions_label: 'sessions',
+    rp_legend_total: 'Total Score',
+
+    rp_col_branch: 'Branch',
+    rp_col_robin: 'Robin %',
+
+    rp_supervisors_section: 'Supervisors',
+    rp_branch_performance: 'Branch Performance',
+    rp_branch_performance_sub: 'Top 10 branches by session volume',
+    rp_branch_table: 'All Branches',
 
     // Coaching page
     coaching_strengths: 'Strengths',

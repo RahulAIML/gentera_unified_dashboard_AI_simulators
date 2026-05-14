@@ -9,6 +9,8 @@ import {
   Building2,
   ChevronLeft,
   ChevronRight,
+  Mic2,
+  UserCheck,
 } from 'lucide-react'
 import { NavLink } from 'react-router-dom'
 import { useAppStore } from '../../store'
@@ -30,12 +32,19 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
     ],
   },
   {
-    labelKey: 'nav_analytics',
+    labelKey: 'nav_simulator',
     items: [
       { to: '/simulations', icon: PlayCircle, key: 'nav_simulations' },
       { to: '/conversational', icon: MessageSquare, key: 'nav_conversational' },
       { to: '/coaching', icon: Brain, key: 'nav_coaching' },
       { to: '/leaderboard', icon: Trophy, key: 'nav_leaderboard' },
+    ],
+  },
+  {
+    labelKey: 'nav_roleplay_group',
+    items: [
+      { to: '/roleplay', icon: Mic2, key: 'nav_roleplay' },
+      { to: '/supervisors', icon: UserCheck, key: 'nav_supervisors' },
     ],
   },
   {
@@ -80,7 +89,7 @@ export function Sidebar() {
                   Gentera
                 </span>
                 <span className="text-slate-600 text-[10px] leading-tight whitespace-nowrap">
-                  Conversational Intelligence
+                  AI Training Intelligence
                 </span>
               </motion.div>
             )}

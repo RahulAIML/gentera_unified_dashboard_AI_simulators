@@ -8,6 +8,8 @@ import LeaderboardPage from './pages/LeaderboardPage'
 import ActivitiesPage from './pages/ActivitiesPage'
 import OrganizationPage from './pages/OrganizationPage'
 import CoachingPage from './pages/CoachingPage'
+import RoleplayPage from './pages/RoleplayPage'
+import SupervisorsPage from './pages/SupervisorsPage'
 import NotFoundPage from './pages/NotFoundPage'
 import { ErrorBoundary } from './components/ui/ErrorBoundary'
 
@@ -31,6 +33,8 @@ export default function App() {
               <Route path="/activities" element={<ActivitiesPage />} />
               <Route path="/organization" element={<OrganizationPage />} />
               <Route path="/coaching" element={<CoachingPage />} />
+              <Route path="/roleplay" element={<RoleplayPage />} />
+              <Route path="/supervisors" element={<SupervisorsPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
           </ErrorBoundary>
