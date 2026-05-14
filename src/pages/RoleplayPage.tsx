@@ -3,14 +3,12 @@ import { useRoleplayData } from '../api/roleplayQueries'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
 import {
-  computeRpKPIs,
-  computeRpTrend,
-  computeScoreDimensions,
-  computeRpActivityStats,
-  computeRpUserStats,
-  computeRpScoreDistribution,
-  computeCriteriaStats,
+  computeRpKPIs, computeRpTrend, computeScoreDimensions,
+  computeRpActivityStats, computeRpUserStats, computeRpScoreDistribution,
+  computeCriteriaStats, parseRpDate,
 } from '../lib/roleplayAnalytics'
+import { DateRangeFilter, inDateRange } from '../components/ui/DateRangeFilter'
+import { downloadCSV, csvDate } from '../lib/csvExport'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip,
   ResponsiveContainer, BarChart, Bar, Cell,
@@ -20,12 +18,10 @@ import { CriteriaChart } from '../components/charts/CriteriaChart'
 import { TooltipShell, TRow, TTitle, TDivider, useTooltipColors } from '../components/charts/TooltipShell'
 import { useChartColors } from '../lib/chartTheme'
 import {
-  Brain, Mic, Eye, Zap, Users, Building2, ChevronDown, RefreshCw, TrendingUp,
-  Clock, PlayCircle, Activity,
+  Brain, Mic, Eye, Zap, Users, Building2, ChevronDown,
+  RefreshCw, TrendingUp, Clock, PlayCircle, Download, CheckCircle2, Circle,
 } from 'lucide-react'
 import { cn } from '../lib/cn'
-
-// ── Tooltips ──────────────────────────────────
 
 function TrendTooltip({ active, payload, label, language, c }: any) {
   if (!active || !payload?.length) return null
@@ -50,20 +46,14 @@ function DistTooltip({ active, payload, language, c }: any) {
   )
 }
 
-// ── KPI Card ──────────────────────────────────
-
-function RpKpiCard({
-  icon: Icon, label, value, sub, color,
-}: {
+function RpKpiCard({ icon: Icon, label, value, sub, color }: {
   icon: React.ComponentType<{ className?: string }>
   label: string; value: string | number; sub?: string
   color: 'accent' | 'violet' | 'success' | 'warning' | 'indigo'
 }) {
   const colorMap: Record<string, string> = {
-    accent:  'text-accent bg-accent/10',
-    violet:  'text-violet bg-violet/10',
-    success: 'text-success bg-success/10',
-    warning: 'text-yellow-400 bg-yellow-400/10',
+    accent:  'text-accent bg-accent/10',   violet:  'text-violet bg-violet/10',
+    success: 'text-success bg-success/10', warning: 'text-yellow-400 bg-yellow-400/10',
     indigo:  'text-indigo bg-indigo/10',
   }
   return (
@@ -85,50 +75,110 @@ function RpKpiCard({
 function LegendDot({ color, label, dashed }: { color: string; label: string; dashed?: boolean }) {
   return (
     <div className="flex items-center gap-1.5">
-      <div
-        className="w-6 h-0.5 rounded-full"
-        style={{
-          background: dashed ? 'transparent' : color,
-          borderTop: dashed ? `2px dashed ${color}` : undefined,
-        }}
-      />
+      <div className="w-6 h-0.5 rounded-full" style={{
+        background: dashed ? 'transparent' : color,
+        borderTop: dashed ? `2px dashed ${color}` : undefined,
+      }} />
       <span className="text-[11px] text-slate-500">{label}</span>
     </div>
   )
 }
-
-// ─────────────────────────────────────────────
-// Main Page
-// ─────────────────────────────────────────────
 
 export default function RoleplayPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
   const c = useChartColors()
   const tt = useTooltipColors()
+  const es = language === 'es'
 
-  const {
-    actividades, userActRub, sessions, isLoading, isError, refetch,
-  } = useRoleplayData()
+  const { actividades, userActRub, sessions: allSessions, isLoading, isError, refetch } = useRoleplayData()
 
+  const [from, setFrom] = useState('')
+  const [to,   setTo]   = useState('')
   const [selectedActivity, setSelectedActivity] = useState<string | null>(null)
 
-  const kpis       = useMemo(() => computeRpKPIs(sessions, actividades), [sessions, actividades])
-  const trend      = useMemo(() => computeRpTrend(sessions), [sessions])
-  const dimensions = useMemo(() => computeScoreDimensions(sessions, language), [sessions, language])
-  const actStats   = useMemo(() => computeRpActivityStats(sessions, actividades), [sessions, actividades])
-  const userStats  = useMemo(() => computeRpUserStats(sessions, actividades, userActRub), [sessions, actividades, userActRub])
-  const scoreDist  = useMemo(() => computeRpScoreDistribution(sessions), [sessions])
+  // ── Date-filtered sessions ───────────────────
+  const sessions = useMemo(() => {
+    if (!from && !to) return allSessions
+    return allSessions.filter((s) => {
+      const d = parseRpDate(s.Fecha_y_Hora)
+      if (!d) return false
+      return inDateRange(d.toISOString().split('T')[0], from, to)
+    })
+  }, [allSessions, from, to])
+
+  const kpis        = useMemo(() => computeRpKPIs(sessions, actividades), [sessions, actividades])
+  const trend       = useMemo(() => computeRpTrend(sessions), [sessions])
+  const dimensions  = useMemo(() => computeScoreDimensions(sessions, language), [sessions, language])
+  const actStats    = useMemo(() => computeRpActivityStats(sessions, actividades), [sessions, actividades])
+  const userStats   = useMemo(() => computeRpUserStats(sessions, actividades, userActRub), [sessions, actividades, userActRub])
+  const scoreDist   = useMemo(() => computeRpScoreDistribution(sessions), [sessions])
   const criteriaStats = useMemo(
     () => computeCriteriaStats(sessions, selectedActivity, actividades),
     [sessions, selectedActivity, actividades],
   )
   const activityNames = useMemo(
-    () => Array.from(new Set(sessions.map((s) => s.Actividad_Rub_Nombre))).sort(),
-    [sessions],
+    () => Array.from(new Set(allSessions.map((s) => s.Actividad_Rub_Nombre))).sort(),
+    [allSessions],
   )
 
-  const es = language === 'es'
+  // Criteria defined in Dim_Actividades_Rub for the selected activity (regardless of sessions)
+  const actDef = useMemo(() => {
+    if (selectedActivity) return actividades.find((a) => a.Actividad_Rub_Nombre === selectedActivity)
+    return actividades[0]
+  }, [selectedActivity, actividades])
+
+  const definedCriteria = useMemo(() => {
+    if (!actDef) return []
+    return Array.from({ length: actDef.Numero_MC }, (_, i) => {
+      const label = actDef[`MC_${i + 1}` as keyof typeof actDef] as string
+      return label && label !== 'No aplica' ? { index: i + 1, label } : null
+    }).filter(Boolean) as { index: number; label: string }[]
+  }, [actDef])
+
+  const mcHasData = criteriaStats.length > 0
+  const mcNoneScored = !mcHasData && definedCriteria.length > 0
+
+  // ── CSV exports ──────────────────────────────
+  function exportSessionsCSV() {
+    if (!sessions.length) return
+    const rows: (string | number)[][] = [[
+      'ID', es ? 'Usuario' : 'User', es ? 'Sucursal' : 'Branch',
+      es ? 'Actividad' : 'Activity', es ? 'Fecha' : 'Date',
+      es ? 'Puntaje Total' : 'Total Score', 'Robin %', 'Facial %',
+      es ? 'Voz %' : 'Voice %', 'PPM %',
+      es ? 'Grabaciones' : 'Recordings', es ? 'Duración (s)' : 'Duration (s)',
+    ]]
+    sessions.forEach((s) => rows.push([
+      s.ID_Ejercicio_Rub, s.Usuario_Nombre, s.Administrador_Nombre,
+      s.Actividad_Rub_Nombre, s.Fecha, s.Puntos_Totales,
+      s.Porcentaje_Robin, s.Porcentaje_Facial, s.Porcentaje_Voz,
+      s.Porcentaje_Palabras_por_Minuto, s.Grabaciones_Totales, s.Duracion_del_Video,
+    ]))
+    downloadCSV(rows, `gentera_rp_sessions_${csvDate()}.csv`)
+  }
+
+  function exportActivityCSV() {
+    if (!actStats.length) return
+    const rows: (string | number)[][] = [[
+      es ? 'Actividad' : 'Activity', es ? 'Sesiones' : 'Sessions',
+      es ? 'Puntaje Prom.' : 'Avg Score', 'Robin %',
+      es ? 'Sucursales' : 'Branches',
+    ]]
+    actStats.forEach((a) => rows.push([a.name, a.count, a.avgScore, a.avgRobin, a.assignedBranches]))
+    downloadCSV(rows, `gentera_rp_activities_${csvDate()}.csv`)
+  }
+
+  function exportUsersCSV() {
+    if (!userStats.length) return
+    const rows: (string | number)[][] = [[
+      es ? 'Usuario' : 'User', es ? 'Sucursal' : 'Branch',
+      es ? 'Sesiones' : 'Sessions', es ? 'Puntaje Prom.' : 'Avg Score',
+      'Robin %', es ? 'Mejor Puntaje' : 'Best Score',
+    ]]
+    userStats.forEach((u) => rows.push([u.name, u.branch, u.count, u.avgScore, u.avgRobin, u.bestScore]))
+    downloadCSV(rows, `gentera_rp_users_${csvDate()}.csv`)
+  }
 
   if (isLoading) {
     return (
@@ -138,10 +188,6 @@ export default function RoleplayPage() {
           {Array.from({ length: 8 }).map((_, i) => (
             <div key={i} className="card p-5 h-28 skeleton rounded-xl" />
           ))}
-        </div>
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-          <div className="card p-5 h-80 skeleton rounded-xl lg:col-span-2" />
-          <div className="card p-5 h-80 skeleton rounded-xl" />
         </div>
       </div>
     )
@@ -156,7 +202,7 @@ export default function RoleplayPage() {
     )
   }
 
-  if (!sessions.length) {
+  if (!allSessions.length) {
     return (
       <div className="space-y-6">
         <div>
@@ -174,39 +220,64 @@ export default function RoleplayPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_roleplay_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_roleplay_subtitle')}</p>
         </div>
-        <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
-          <RefreshCw className="w-3.5 h-3.5" />
-          {t('retry')}
-        </button>
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} label={es ? 'Período' : 'Period'} />
+          <button onClick={exportSessionsCSV} disabled={!sessions.length}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
+            <Download className="w-3.5 h-3.5" />{es ? 'Sesiones' : 'Sessions'}
+          </button>
+          <button onClick={exportActivityCSV} disabled={!actStats.length}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
+            <Download className="w-3.5 h-3.5" />{es ? 'Actividades' : 'Activities'}
+          </button>
+          <button onClick={exportUsersCSV} disabled={!userStats.length}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
+            <Download className="w-3.5 h-3.5" />{es ? 'Usuarios' : 'Users'}
+          </button>
+          <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" />
+          </button>
+        </div>
       </div>
 
-      {/* KPI Row 1 — Volume */}
+      {/* Active filter badge */}
+      {(from || to) && (
+        <div className="flex items-center gap-2">
+          <span className="text-[11px] text-accent bg-accent/10 border border-accent/20 px-2.5 py-1 rounded-full">
+            {from && to ? `${from} → ${to}` : from ? `≥ ${from}` : `≤ ${to}`}
+            {' · '}{sessions.length} {es ? 'sesiones' : 'sessions'}
+          </span>
+          <button onClick={() => { setFrom(''); setTo('') }} className="text-[11px] text-slate-500 hover:text-slate-300">✕ {es ? 'Limpiar' : 'Clear'}</button>
+        </div>
+      )}
+
+      {/* KPI Row 1 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <RpKpiCard icon={Brain}      label={t('rp_kpi_sessions')}  value={kpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')} color="violet" />
+        <RpKpiCard icon={Brain}      label={t('rp_kpi_sessions')}  value={kpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')}  color="violet" />
         <RpKpiCard icon={TrendingUp} label={t('rp_kpi_avg_score')} value={`${kpis.avgTotalScore}`}             sub={t('rp_kpi_avg_score_sub')} color="accent" />
-        <RpKpiCard icon={Users}      label={t('rp_kpi_users')}     value={kpis.activeUsers}                    sub={t('rp_kpi_users_sub')} color="success" />
-        <RpKpiCard icon={Building2}  label={t('rp_kpi_branches')}  value={kpis.activeBranches}                 sub={t('rp_kpi_branches_sub')} color="indigo" />
+        <RpKpiCard icon={Users}      label={t('rp_kpi_users')}     value={kpis.activeUsers}                    sub={t('rp_kpi_users_sub')}     color="success" />
+        <RpKpiCard icon={Building2}  label={t('rp_kpi_branches')}  value={kpis.activeBranches}                 sub={t('rp_kpi_branches_sub')}  color="indigo" />
       </div>
 
       {/* KPI Row 2 — AI Dimensions */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <RpKpiCard icon={Brain}       label={t('rp_dim_robin')}  value={`${kpis.avgRobinPct}%`}  color="violet" />
-        <RpKpiCard icon={Eye}         label={t('rp_dim_facial')} value={`${kpis.avgFacialPct}%`} color="warning" />
-        <RpKpiCard icon={Mic}         label={t('rp_dim_voice')}  value={`${kpis.avgVoicePct}%`}  color="success" />
-        <RpKpiCard icon={Zap}         label={t('rp_dim_wpm')}    value={`${kpis.avgWpmPct}%`}    color="accent" />
+        <RpKpiCard icon={Brain} label={t('rp_dim_robin')}  value={`${kpis.avgRobinPct}%`}  color="violet" />
+        <RpKpiCard icon={Eye}   label={t('rp_dim_facial')} value={`${kpis.avgFacialPct}%`} color="warning" />
+        <RpKpiCard icon={Mic}   label={t('rp_dim_voice')}  value={`${kpis.avgVoicePct}%`}  color="success" />
+        <RpKpiCard icon={Zap}   label={t('rp_dim_wpm')}    value={`${kpis.avgWpmPct}%`}    color="accent" />
       </div>
 
-      {/* Extra KPIs row */}
+      {/* KPI Row 3 */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <RpKpiCard icon={Activity}   label={es ? 'Actividades' : 'Activities'}           value={kpis.totalActivities}                                       color="indigo" />
-        <RpKpiCard icon={PlayCircle} label={es ? 'Intentos Prom.' : 'Avg. Attempts'}     value={kpis.avgRecordingAttempts}                                   sub={es ? 'grabaciones por sesión' : 'recordings per session'} color="accent" />
-        <RpKpiCard icon={Clock}      label={es ? 'Duración Prom.' : 'Avg. Duration'}     value={`${Math.round(kpis.avgVideoDuration)}s`}                     sub={es ? 'por video' : 'per video'} color="violet" />
-        <RpKpiCard icon={Brain}      label={es ? 'MC Criterios Prom.' : 'MC Criteria Avg'} value={kpis.avgCriteriaRate > 0 ? `${kpis.avgCriteriaRate}%` : '—'} sub={es ? '% cumplidos' : '% met'} color="success" />
+        <RpKpiCard icon={PlayCircle} label={es ? 'Actividades' : 'Activities'}         value={kpis.totalActivities}                                         color="indigo" />
+        <RpKpiCard icon={RefreshCw}  label={es ? 'Intentos Prom.' : 'Avg. Attempts'}   value={kpis.avgRecordingAttempts}                                     sub={es ? 'grabaciones/sesión' : 'recordings/session'} color="accent" />
+        <RpKpiCard icon={Clock}      label={es ? 'Duración Prom.' : 'Avg. Duration'}   value={`${Math.round(kpis.avgVideoDuration)}s`}                       sub={es ? 'por video' : 'per video'} color="violet" />
+        <RpKpiCard icon={Brain}      label={es ? 'Criterios MC' : 'MC Criteria'}       value={kpis.avgCriteriaRate > 0 ? `${kpis.avgCriteriaRate}%` : '—'}   sub={es ? '% cumplidos' : '% met'}   color="success" />
       </div>
 
       {/* Trend + Radar */}
@@ -300,32 +371,63 @@ export default function RoleplayPage() {
             <h3 className="text-sm font-semibold text-slate-200">{t('rp_criteria_title')}</h3>
             <p className="text-[11px] text-slate-600 mt-0.5">{t('rp_criteria_sub')}</p>
           </div>
-          <div className="relative">
-            <select
-              value={selectedActivity ?? ''}
-              onChange={(e) => setSelectedActivity(e.target.value || null)}
-              className="appearance-none bg-surface border border-line text-slate-300 text-xs rounded-lg px-3 py-1.5 pr-7 focus:outline-none focus:border-accent cursor-pointer"
-            >
-              <option value="">{t('filter_all_activities')}</option>
-              {activityNames.map((name) => (
-                <option key={name} value={name}>{name.length > 40 ? name.slice(0, 40) + '…' : name}</option>
-              ))}
-            </select>
-            <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
+          <div className="flex items-center gap-2">
+            <div className="relative">
+              <select
+                value={selectedActivity ?? ''}
+                onChange={(e) => setSelectedActivity(e.target.value || null)}
+                className="appearance-none bg-surface border border-line text-slate-300 text-xs rounded-lg px-3 py-1.5 pr-7 focus:outline-none focus:border-accent cursor-pointer"
+              >
+                <option value="">{t('filter_all_activities')}</option>
+                {activityNames.map((name) => (
+                  <option key={name} value={name}>{name.length > 40 ? name.slice(0, 40) + '…' : name}</option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-2 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500 pointer-events-none" />
+            </div>
           </div>
         </div>
-        {criteriaStats.length ? (
-          <CriteriaChart data={criteriaStats} language={language} height={260} />
+
+        {mcHasData ? (
+          <>
+            <CriteriaChart data={criteriaStats} language={language} height={260} />
+            <div className="flex gap-4 mt-3 flex-wrap">
+              <LegendDot color="#10B981" label={es ? '≥ 70% cumplido' : '≥ 70% met'} />
+              <LegendDot color="#3B82F6" label="40–69%" />
+              <LegendDot color="#EF4444" label="< 40%" />
+            </div>
+          </>
+        ) : mcNoneScored ? (
+          /* Show defined criteria list when sessions exist but MC not yet scored */
+          <div>
+            <div className="flex items-center gap-2 mb-4 p-3 rounded-lg bg-yellow-400/5 border border-yellow-400/20">
+              <Brain className="w-4 h-4 text-yellow-400 shrink-0" />
+              <p className="text-xs text-yellow-300">
+                {es
+                  ? 'Los criterios MC están definidos para esta actividad, pero aún no se han registrado evaluaciones en las sesiones actuales.'
+                  : 'MC criteria are defined for this activity but have not been scored in current sessions yet.'}
+              </p>
+            </div>
+            <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-3">
+              {es ? `Criterios definidos — ${actDef?.Actividad_Rub_Nombre ?? ''}` : `Defined criteria — ${actDef?.Actividad_Rub_Nombre ?? ''}`}
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+              {definedCriteria.map((cr) => (
+                <div key={cr.index} className="flex items-start gap-2.5 p-2.5 rounded-lg bg-surface border border-line/20">
+                  <div className="flex items-center justify-center w-5 h-5 rounded-full bg-slate-700 shrink-0 mt-0.5">
+                    <span className="text-[9px] font-bold text-slate-400">{cr.index}</span>
+                  </div>
+                  <p className="text-xs text-slate-400 leading-snug">{cr.label}</p>
+                  <Circle className="w-3.5 h-3.5 text-slate-700 shrink-0 ml-auto mt-0.5" />
+                </div>
+              ))}
+            </div>
+          </div>
         ) : (
           <div className="h-40 flex items-center justify-center text-slate-600 text-sm">
-            {es ? 'Selecciona una actividad con criterios MC' : 'Select an activity with MC criteria'}
+            {es ? 'Selecciona una actividad para ver sus criterios' : 'Select an activity to view its criteria'}
           </div>
         )}
-        <div className="flex gap-4 mt-3 flex-wrap">
-          <LegendDot color="#10B981" label={es ? '≥ 70% cumplido' : '≥ 70% met'} />
-          <LegendDot color="#3B82F6" label="40–69%" />
-          <LegendDot color="#EF4444" label={es ? '< 40%' : '< 40%'} />
-        </div>
       </div>
 
       {/* Top Performers */}
@@ -354,9 +456,7 @@ export default function RoleplayPage() {
                       i === 1 ? 'bg-slate-400/15 text-slate-300' :
                       i === 2 ? 'bg-orange-500/15 text-orange-400' :
                       'bg-surface text-slate-600',
-                    )}>
-                      {i + 1}
-                    </span>
+                    )}>{i + 1}</span>
                   </td>
                   <td className="py-2 pr-4 text-slate-200 font-medium truncate max-w-[160px]">{u.name}</td>
                   <td className="py-2 pr-4 text-slate-500 text-xs truncate max-w-[120px]">{u.branch}</td>

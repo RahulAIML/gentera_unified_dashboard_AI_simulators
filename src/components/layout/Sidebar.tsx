@@ -81,12 +81,11 @@ export function Sidebar() {
       {/* Logo */}
       <div className="flex items-center h-16 px-4 border-b border-line/30 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
-          <div className="w-8 h-8 rounded-lg bg-accent flex items-center justify-center shrink-0 shadow-glow">
-            <svg viewBox="0 0 20 20" className="w-4 h-4 text-white fill-current">
-              <path d="M3 10 Q6 4 10 10 Q14 16 17 10" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
-              <circle cx="10" cy="10" r="1.5" fill="white"/>
-            </svg>
-          </div>
+          <img
+            src="/gentera-logo.svg"
+            alt="Gentera"
+            className="w-8 h-8 shrink-0 object-contain"
+          />
           <AnimatePresence>
             {!collapsed && (
               <motion.div

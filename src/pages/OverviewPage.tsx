@@ -1,46 +1,88 @@
+import { useState, useMemo } from 'react'
 import { useDashboardData } from '../hooks/useDashboardData'
-import { useFactRolPlayRub } from '../api/roleplayQueries'
-import { computeRpKPIs } from '../lib/roleplayAnalytics'
+import { useFactRolPlayRub, useRpActividadesRub } from '../api/roleplayQueries'
+import { computeRpKPIs, parseRpDate } from '../lib/roleplayAnalytics'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
+import { DateRangeFilter, inDateRange } from '../components/ui/DateRangeFilter'
+import { downloadCSV, csvDate } from '../lib/csvExport'
 import {
-  BarChart3,
-  PlayCircle,
-  CheckCircle2,
-  Users,
-  Brain,
-  Mic2,
+  BarChart3, PlayCircle, CheckCircle2, Users, Brain, Mic2, Download,
 } from 'lucide-react'
 import {
-  AreaChart,
-  Area,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  PieChart,
-  Pie,
-  Cell,
-  BarChart,
-  Bar,
+  AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  PieChart, Pie, Cell, BarChart, Bar,
 } from 'recharts'
 import { Link } from 'react-router-dom'
 
-const COLORS = {
-  pass: '#10B981',
-  fail: '#EF4444',
-  accent: '#3B82F6',
-  violet: '#8B5CF6',
-}
+const COLORS = { pass: '#10B981', fail: '#EF4444', accent: '#3B82F6', violet: '#8B5CF6' }
 
 export default function OverviewPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
-  const { isLoading, isError, kpis, trend, scoreDist, actStats, userStats, refetch } = useDashboardData()
-  const rpFact = useFactRolPlayRub()
-  const rpKpis = rpFact.data?.length ? computeRpKPIs(rpFact.data, []) : null
+  const es = language === 'es'
 
+  const { isLoading, isError, kpis, trend, scoreDist, actStats, userStats, sims, refetch } =
+    useDashboardData()
+  const rpFact        = useFactRolPlayRub()
+  const rpActividades = useRpActividadesRub()
+
+  // ── Date range ──────────────────────────────
+  const [from, setFrom] = useState('')
+  const [to,   setTo]   = useState('')
+
+  const filteredTrend = useMemo(() => {
+    if (!trend?.length || (!from && !to)) return trend ?? []
+    return trend.filter((p) => inDateRange(p.date, from, to))
+  }, [trend, from, to])
+
+  const rpSessions = useMemo(() => {
+    const sessions = rpFact.data ?? []
+    if (!from && !to) return sessions
+    return sessions.filter((s) => {
+      const d = parseRpDate(s.Fecha_y_Hora)
+      if (!d) return false
+      return inDateRange(d.toISOString().split('T')[0], from, to)
+    })
+  }, [rpFact.data, from, to])
+
+  const rpKpis = rpSessions.length
+    ? computeRpKPIs(rpSessions, rpActividades.data ?? [])
+    : null
+
+  // ── CSV exports ─────────────────────────────
+  function exportSimCSV() {
+    if (!kpis) return
+    downloadCSV([
+      [es ? 'Métrica' : 'Metric',              es ? 'Valor' : 'Value'],
+      [es ? 'Total Simulaciones' : 'Total Simulations', kpis.totalSimulations],
+      [es ? 'Puntaje Promedio'   : 'Average Score',     `${kpis.averageScore}%`],
+      [es ? 'Tasa de Aprobación' : 'Pass Rate',         `${kpis.passRate}%`],
+      [es ? 'Asesores Activos'   : 'Active Advisors',   kpis.activeAdvisors],
+      [es ? 'Aprobados'          : 'Passed',            kpis.passCount],
+      [es ? 'Reprobados'         : 'Failed',            kpis.failCount],
+      ...(actStats ?? []).map((a) => [a.name, a.count]),
+    ], `gentera_sim_overview_${csvDate()}.csv`)
+  }
+
+  function exportRpCSV() {
+    const sessions = rpFact.data ?? []
+    if (!sessions.length) return
+    const rows: (string | number)[][] = [[
+      'ID', es ? 'Usuario' : 'User', es ? 'Sucursal' : 'Branch', es ? 'Actividad' : 'Activity',
+      es ? 'Fecha' : 'Date', es ? 'Puntaje Total' : 'Total Score',
+      'Robin %', 'Facial %', es ? 'Voz %' : 'Voice %', 'PPM %',
+    ]]
+    sessions.forEach((s) => rows.push([
+      s.ID_Ejercicio_Rub, s.Usuario_Nombre, s.Administrador_Nombre,
+      s.Actividad_Rub_Nombre, s.Fecha, s.Puntos_Totales,
+      s.Porcentaje_Robin, s.Porcentaje_Facial, s.Porcentaje_Voz,
+      s.Porcentaje_Palabras_por_Minuto,
+    ]))
+    downloadCSV(rows, `gentera_roleplay_sessions_${csvDate()}.csv`)
+  }
+
+  // ── Loading / error ──────────────────────────
   if (isLoading) {
     return (
       <div className="space-y-6">
@@ -75,28 +117,49 @@ export default function OverviewPage() {
   const topActivities = (actStats ?? []).slice(0, 5).map((a) => ({
     name: a.name.length > 24 ? a.name.slice(0, 24) + '...' : a.name,
     count: a.count,
-    avgScore: a.avgScore,
   }))
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_overview_title')}</h1>
-        <p className="text-slate-500 text-sm mt-0.5">{t('page_overview_subtitle')}</p>
+      {/* Header + date range + exports */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_overview_title')}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{t('page_overview_subtitle')}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          <DateRangeFilter
+            from={from} to={to} onFrom={setFrom} onTo={setTo}
+            label={es ? 'Período' : 'Period'}
+          />
+          <button
+            onClick={exportSimCSV}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {es ? 'Sim. CSV' : 'Sim. CSV'}
+          </button>
+          <button
+            onClick={exportRpCSV}
+            disabled={!(rpFact.data?.length)}
+            className="flex items-center gap-1.5 text-xs text-violet hover:text-violet/80 border border-violet/30 hover:border-violet/50 rounded-lg px-3 py-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {es ? 'RP CSV' : 'RP CSV'}
+          </button>
+        </div>
       </div>
 
       {/* Simulator KPIs */}
       <div>
         <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-1.5">
-          <PlayCircle className="w-3 h-3" />
-          {language === 'es' ? 'Simulador' : 'Simulator'}
+          <PlayCircle className="w-3 h-3" />{es ? 'Simulador' : 'Simulator'}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard icon={PlayCircle} label={t('kpi_total_sims')} value={kpis.totalSimulations} sub={t('sub_across_activities')} color="accent" />
-          <KpiCard icon={BarChart3} label={t('kpi_avg_score')} value={`${kpis.averageScore}%`} sub={t('sub_overall')} color="violet" />
-          <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')} value={`${kpis.passRate}%`} sub={t('sub_sessions_passed')} color="pass" />
-          <KpiCard icon={Users} label={t('kpi_active_advisors')} value={kpis.activeAdvisors} sub={t('sub_with_simulations')} color="indigo" />
+          <KpiCard icon={PlayCircle}   label={t('kpi_total_sims')}      value={kpis.totalSimulations}   sub={t('sub_across_activities')} color="accent" />
+          <KpiCard icon={BarChart3}    label={t('kpi_avg_score')}       value={`${kpis.averageScore}%`} sub={t('sub_overall')}           color="violet" />
+          <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')}       value={`${kpis.passRate}%`}     sub={t('sub_sessions_passed')}   color="pass" />
+          <KpiCard icon={Users}        label={t('kpi_active_advisors')} value={kpis.activeAdvisors}     sub={t('sub_with_simulations')}  color="indigo" />
         </div>
       </div>
 
@@ -104,29 +167,34 @@ export default function OverviewPage() {
       {rpKpis && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-1.5">
-            <Mic2 className="w-3 h-3" />
-            {language === 'es' ? 'Roleplay IA' : 'Roleplay AI'}
+            <Mic2 className="w-3 h-3" />{es ? 'Roleplay IA' : 'Roleplay AI'}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-            <KpiCard icon={Mic2} label={t('rp_kpi_sessions')} value={rpKpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')} color="violet" />
-            <KpiCard icon={Brain} label={t('rp_dim_robin')} value={`${rpKpis.avgRobinPct}%`} sub={language === 'es' ? 'promedio IA' : 'AI avg'} color="indigo" />
-            <KpiCard icon={BarChart3} label={t('rp_kpi_avg_score')} value={`${rpKpis.avgTotalScore}`} sub={t('rp_kpi_avg_score_sub')} color="accent" />
-            <KpiCard icon={Users} label={t('rp_kpi_users')} value={rpKpis.activeUsers} sub={t('rp_kpi_users_sub')} color="pass" />
+            <KpiCard icon={Mic2}     label={t('rp_kpi_sessions')}  value={rpKpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')}  color="violet" />
+            <KpiCard icon={Brain}    label={t('rp_dim_robin')}      value={`${rpKpis.avgRobinPct}%`}              sub={es ? 'promedio IA' : 'AI avg'} color="indigo" />
+            <KpiCard icon={BarChart3} label={t('rp_kpi_avg_score')} value={`${rpKpis.avgTotalScore}`}             sub={t('rp_kpi_avg_score_sub')} color="accent" />
+            <KpiCard icon={Users}    label={t('rp_kpi_users')}      value={rpKpis.activeUsers}                    sub={t('rp_kpi_users_sub')}     color="pass" />
           </div>
         </div>
       )}
 
-      {/* Charts row */}
+      {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        {/* Trend */}
         <div className="card p-5 lg:col-span-2">
-          <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('score_trend')}</h3>
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-sm font-semibold text-slate-200">{t('score_trend')}</h3>
+            {(from || to) && (
+              <span className="text-[10px] text-accent bg-accent/10 px-2 py-0.5 rounded-full">
+                {from && to ? `${from} → ${to}` : from ? `≥ ${from}` : `≤ ${to}`}
+              </span>
+            )}
+          </div>
           <div className="h-72">
             <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={trend ?? []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+              <AreaChart data={filteredTrend} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="scoreGrad" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor={COLORS.accent} stopOpacity={0.3} />
+                    <stop offset="5%"  stopColor={COLORS.accent} stopOpacity={0.3} />
                     <stop offset="95%" stopColor={COLORS.accent} stopOpacity={0} />
                   </linearGradient>
                 </defs>
@@ -140,16 +208,13 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Pass/Fail */}
         <div className="card p-5">
           <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('pass_fail_dist')}</h3>
           <div className="h-56">
             <ResponsiveContainer width="100%" height="100%">
               <PieChart>
                 <Pie data={passFailData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value">
-                  {passFailData.map((entry, index) => (
-                    <Cell key={index} fill={entry.color} />
-                  ))}
+                  {passFailData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
                 <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
               </PieChart>
@@ -166,9 +231,7 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* Bottom row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-        {/* Activity breakdown */}
         <div className="card p-5">
           <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('activity_breakdown')}</h3>
           <div className="h-64">
@@ -184,7 +247,6 @@ export default function OverviewPage() {
           </div>
         </div>
 
-        {/* Top performers */}
         <div className="card p-5">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-200">{t('top_performers')}</h3>
@@ -198,9 +260,7 @@ export default function OverviewPage() {
                   i === 1 ? 'bg-slate-400/15 text-slate-300' :
                   i === 2 ? 'bg-orange-500/15 text-orange-400' :
                   'bg-surface text-slate-600'
-                }`}>
-                  {i + 1}
-                </div>
+                }`}>{i + 1}</div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm text-slate-200 truncate">{u.name}</p>
                   <p className="text-[11px] text-slate-600">{u.count} {t('simulations_count')}</p>
@@ -215,7 +275,6 @@ export default function OverviewPage() {
         </div>
       </div>
 
-      {/* Score distribution */}
       <div className="card p-5">
         <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('score_distribution')}</h3>
         <div className="h-56">
@@ -235,23 +294,15 @@ export default function OverviewPage() {
 }
 
 function KpiCard({
-  icon: Icon,
-  label,
-  value,
-  sub,
-  color,
+  icon: Icon, label, value, sub, color,
 }: {
   icon: React.ComponentType<{ className?: string }>
-  label: string
-  value: string | number
-  sub: string
+  label: string; value: string | number; sub: string
   color: 'accent' | 'violet' | 'pass' | 'indigo'
 }) {
   const colorMap = {
-    accent: 'text-accent bg-accent/10',
-    violet: 'text-violet bg-violet/10',
-    pass: 'text-success bg-success/10',
-    indigo: 'text-indigo bg-indigo/10',
+    accent: 'text-accent bg-accent/10', violet: 'text-violet bg-violet/10',
+    pass:   'text-success bg-success/10', indigo: 'text-indigo bg-indigo/10',
   }
   return (
     <div className="card p-5">
