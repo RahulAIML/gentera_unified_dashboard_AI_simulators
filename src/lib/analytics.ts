@@ -1,4 +1,6 @@
 import type { Activity, Administrator, Member, Simulation } from '../api/types'
+// re-export so pages can import directly
+export type { Simulation }
 
 export const PASS_THRESHOLD = 60
 
@@ -13,6 +15,28 @@ function avg(nums: number[]): number {
 function pct(part: number, total: number): number {
   if (!total) return 0
   return Math.round((part / total) * 100)
+}
+
+/** True only for numeric 0/1 interaction values — excludes "No aplica" and null */
+function isApplicable(v: unknown): v is number {
+  return typeof v === 'number'
+}
+
+const INTERACTION_KEYS = ['Puntos_1','Puntos_2','Puntos_3','Puntos_4','Puntos_5','Puntos_6'] as const
+
+/** Count of applicable (numeric) interactions for one simulation */
+function countApplicable(s: Simulation): number {
+  return INTERACTION_KEYS.filter((k) => isApplicable(s[k])).length
+}
+
+/**
+ * Correct avg score: total points earned / total applicable interactions.
+ * e.g. 100 pts across 120 interactions = 83%.
+ */
+function avgScore(sims: Simulation[]): number {
+  const totalPts  = sims.reduce((sum, s) => sum + s.Puntos_Totales, 0)
+  const totalEvts = sims.reduce((sum, s) => sum + countApplicable(s), 0)
+  return pct(totalPts, totalEvts)
 }
 
 // ─────────────────────────────────────────────
@@ -39,13 +63,13 @@ export function computeKPIs(
   members: Member[],
   admins: Administrator[],
 ): DashboardKPIs {
-  const scores = sims.map((s) => s.Calificacion)
   const passCount = sims.filter((s) => s.Diagnostico_Final === 'Si').length
   const advisors = new Set(sims.map((s) => s.Usuario_Nombre))
+  const scores = sims.map((s) => s.Calificacion)
 
   return {
     totalSimulations: sims.length,
-    averageScore: Math.round(avg(scores)),
+    averageScore: avgScore(sims),
     passRate: pct(passCount, sims.length),
     activeAdvisors: advisors.size,
     totalActivities: activities.length,
@@ -129,11 +153,11 @@ export function computeRoundStats(sims: Simulation[]): RoundStat[] {
   return [1, 2, 3, 4, 5, 6].map((i) => {
     const key = `Puntos_${i}` as keyof Simulation
     const values = sims
-      .map((s) => s[key] as number | null)
-      .filter((v): v is number => v !== null && v !== undefined)
+      .map((s) => s[key])
+      .filter(isApplicable)            // excludes "No aplica" and null
     return {
       round: i,
-      label: `R${i}`,
+      label: `I${i}`,                  // I = Interaction
       avg: values.length ? Math.round(avg(values) * 100) / 100 : 0,
       passRate: values.length ? pct(values.filter((v) => v > 0).length, values.length) : 0,
       count: values.length,
@@ -174,7 +198,7 @@ export function computeActivityStats(
       name: act?.Caso_de_Uso ?? `Activity ${id}`,
       activityType: act?.Actividad_Nombre ?? 'unknown',
       count: group.length,
-      avgScore: Math.round(avg(group.map((s) => s.Calificacion))),
+      avgScore: avgScore(group),
       passRate: pct(passCount, group.length),
       passCount,
       failCount: group.length - passCount,
@@ -204,13 +228,13 @@ export function computeUserStats(sims: Simulation[]): UserStat[] {
   })
   return Object.entries(byUser)
     .map(([name, group]) => {
-      const scores = group.map((s) => s.Calificacion)
       const passCount = group.filter((s) => s.Diagnostico_Final === 'Si').length
+      const scores = group.map((s) => s.Calificacion)
       return {
         name,
         userId: group[0].Usuario,
         count: group.length,
-        avgScore: Math.round(avg(scores)),
+        avgScore: avgScore(group),
         passRate: pct(passCount, group.length),
         bestScore: Math.max(...scores),
         passCount,
@@ -282,6 +306,8 @@ export function extractFeedback(sims: Simulation[]): FeedbackEntry[] {
   const entries: FeedbackEntry[] = []
   sims.forEach((s) => {
     for (let i = 1; i <= 6; i++) {
+      const puntos = s[`Puntos_${i}` as keyof Simulation]
+      if (!isApplicable(puntos)) continue   // skip "No aplica" and null
       const feedback = s[`Retroalimentacion_${i}` as keyof Simulation] as string | null
       if (!feedback) continue
       entries.push({
@@ -291,7 +317,7 @@ export function extractFeedback(sims: Simulation[]): FeedbackEntry[] {
         question: (s[`Pregunta_${i}` as keyof Simulation] as string | null) ?? '',
         response: (s[`Respuesta_${i}` as keyof Simulation] as string | null) ?? '',
         feedback,
-        points: (s[`Puntos_${i}` as keyof Simulation] as number | null) ?? 0,
+        points: puntos,
       })
     }
   })

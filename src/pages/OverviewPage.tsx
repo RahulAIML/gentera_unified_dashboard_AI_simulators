@@ -2,6 +2,9 @@ import { useState, useMemo } from 'react'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useFactRolPlayRub, useRpActividadesRub } from '../api/roleplayQueries'
 import { computeRpKPIs, parseRpDate } from '../lib/roleplayAnalytics'
+import {
+  computeKPIs, computeActivityStats, computeUserStats, computeScoreDistribution,
+} from '../lib/analytics'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
 import { DateRangeFilter, inDateRange } from '../components/ui/DateRangeFilter'
@@ -70,14 +73,35 @@ export default function OverviewPage() {
   const c  = useChartColors()
   const tt = useTooltipColors()
 
-  const { isLoading, isError, kpis, trend, scoreDist, actStats, userStats, sims, refetch } =
-    useDashboardData()
+  const {
+    isLoading, isError,
+    kpis, trend, scoreDist, actStats, userStats,
+    sims, activities, members, admins,
+    refetch,
+  } = useDashboardData()
   const rpFact        = useFactRolPlayRub()
   const rpActividades = useRpActividadesRub()
 
   // ── Date range ──────────────────────────────
   const [from, setFrom] = useState('')
   const [to,   setTo]   = useState('')
+
+  // ── Filter sims by date range ────────────────
+  const filteredSims = useMemo(() => {
+    if (!sims.length || (!from && !to)) return sims
+    return sims.filter((s) => {
+      const date = s.Fecha_y_Hora?.split('T')[0]
+      return date ? inDateRange(date, from, to) : false
+    })
+  }, [sims, from, to])
+
+  const dateActive = !!(from || to)
+
+  // Re-derive all stats from filtered sims when date range is active
+  const activeKpis     = useMemo(() => dateActive && filteredSims.length ? computeKPIs(filteredSims, activities, members, admins) : kpis,     [dateActive, filteredSims, activities, members, admins, kpis])
+  const activeActStats = useMemo(() => dateActive ? computeActivityStats(filteredSims, activities) : actStats, [dateActive, filteredSims, activities, actStats])
+  const activeScoreDist= useMemo(() => dateActive ? computeScoreDistribution(filteredSims) : scoreDist,        [dateActive, filteredSims, scoreDist])
+  const activeUserStats= useMemo(() => dateActive ? computeUserStats(filteredSims) : userStats,                [dateActive, filteredSims, userStats])
 
   const filteredTrend = useMemo(() => {
     if (!trend?.length || (!from && !to)) return trend ?? []
@@ -89,7 +113,7 @@ export default function OverviewPage() {
     if (!from && !to) return sessions
     return sessions.filter((s) => {
       const d = parseRpDate(s.Fecha_y_Hora)
-      if (!d) return false
+      if (!d || isNaN(d.getTime())) return false
       return inDateRange(d.toISOString().split('T')[0], from, to)
     })
   }, [rpFact.data, from, to])
@@ -100,16 +124,16 @@ export default function OverviewPage() {
 
   // ── CSV exports ─────────────────────────────
   function exportSimCSV() {
-    if (!kpis) return
+    if (!activeKpis) return
     downloadCSV([
       [es ? 'Métrica' : 'Metric',              es ? 'Valor' : 'Value'],
-      [es ? 'Total Simulaciones' : 'Total Simulations', kpis.totalSimulations],
-      [es ? 'Puntaje Promedio'   : 'Average Score',     `${kpis.averageScore}%`],
-      [es ? 'Tasa de Aprobación' : 'Pass Rate',         `${kpis.passRate}%`],
-      [es ? 'Asesores Activos'   : 'Active Advisors',   kpis.activeAdvisors],
-      [es ? 'Aprobados'          : 'Passed',            kpis.passCount],
-      [es ? 'Reprobados'         : 'Failed',            kpis.failCount],
-      ...(actStats ?? []).map((a) => [a.name, a.count]),
+      [es ? 'Total Simulaciones' : 'Total Simulations', activeKpis.totalSimulations],
+      [es ? 'Puntaje Promedio'   : 'Average Score',     `${activeKpis.averageScore}%`],
+      [es ? 'Tasa de Aprobación' : 'Pass Rate',         `${activeKpis.passRate}%`],
+      [es ? 'Asesores Activos'   : 'Active Advisors',   activeKpis.activeAdvisors],
+      [es ? 'Aprobados'          : 'Passed',            activeKpis.passCount],
+      [es ? 'Reprobados'         : 'Failed',            activeKpis.failCount],
+      ...(activeActStats ?? []).map((a) => [a.name, a.count]),
     ], `gentera_sim_overview_${csvDate()}.csv`)
   }
 
@@ -148,7 +172,7 @@ export default function OverviewPage() {
     )
   }
 
-  if (isError || !kpis) {
+  if (isError || !activeKpis) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
         <p className="text-slate-400">{t('error')}</p>
@@ -158,11 +182,11 @@ export default function OverviewPage() {
   }
 
   const passFailData = [
-    { name: t('pass'), value: kpis.passCount, color: COLORS.pass },
-    { name: t('fail'), value: kpis.failCount, color: COLORS.fail },
+    { name: t('pass'), value: activeKpis!.passCount, color: COLORS.pass },
+    { name: t('fail'), value: activeKpis!.failCount, color: COLORS.fail },
   ]
 
-  const topActivities = (actStats ?? []).slice(0, 5).map((a) => ({
+  const topActivities = (activeActStats ?? []).slice(0, 5).map((a) => ({
     name: a.name.length > 24 ? a.name.slice(0, 24) + '...' : a.name,
     count: a.count,
   }))
@@ -204,10 +228,10 @@ export default function OverviewPage() {
           <PlayCircle className="w-3 h-3" />{es ? 'Simulador' : 'Simulator'}
         </p>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-          <KpiCard icon={PlayCircle}   label={t('kpi_total_sims')}      value={kpis.totalSimulations}   sub={t('sub_across_activities')} color="accent" />
-          <KpiCard icon={BarChart3}    label={t('kpi_avg_score')}       value={`${kpis.averageScore}%`} sub={t('sub_overall')}           color="violet" />
-          <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')}       value={`${kpis.passRate}%`}     sub={t('sub_sessions_passed')}   color="pass" />
-          <KpiCard icon={Users}        label={t('kpi_active_advisors')} value={kpis.activeAdvisors}     sub={t('sub_with_simulations')}  color="indigo" />
+          <KpiCard icon={PlayCircle}   label={t('kpi_total_sims')}      value={activeKpis!.totalSimulations}   sub={t('sub_across_activities')} color="accent" />
+          <KpiCard icon={BarChart3}    label={t('kpi_avg_score')}       value={`${activeKpis!.averageScore}%`} sub={t('sub_overall')}           color="violet" />
+          <KpiCard icon={CheckCircle2} label={t('kpi_pass_rate')}       value={`${activeKpis!.passRate}%`}     sub={t('sub_sessions_passed')}   color="pass" />
+          <KpiCard icon={Users}        label={t('kpi_active_advisors')} value={activeKpis!.activeAdvisors}     sub={t('sub_with_simulations')}  color="indigo" />
         </div>
       </div>
 
@@ -301,7 +325,7 @@ export default function OverviewPage() {
             <Link to="/leaderboard" className="text-xs text-accent hover:underline">{t('view_all')}</Link>
           </div>
           <div className="space-y-2">
-            {(userStats ?? []).slice(0, 5).map((u, i) => (
+            {(activeUserStats ?? []).slice(0, 5).map((u, i) => (
               <div key={u.name} className="flex items-center gap-3 p-2.5 rounded-lg hover:bg-white/[0.02] transition-colors">
                 <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold shrink-0 ${
                   i === 0 ? 'bg-yellow-500/15 text-yellow-500' :
@@ -327,7 +351,7 @@ export default function OverviewPage() {
         <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('score_distribution')}</h3>
         <div className="h-56">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={scoreDist ?? []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <BarChart data={activeScoreDist ?? []} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="label" />
               <YAxis />
