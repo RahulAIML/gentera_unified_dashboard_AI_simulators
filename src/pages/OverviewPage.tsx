@@ -14,13 +14,61 @@ import {
   PieChart, Pie, Cell, BarChart, Bar,
 } from 'recharts'
 import { Link } from 'react-router-dom'
+import { useChartColors } from '../lib/chartTheme'
+import { TooltipShell, TRow, TTitle, useTooltipColors, type TooltipColors } from '../components/charts/TooltipShell'
 
 const COLORS = { pass: '#10B981', fail: '#EF4444', accent: '#3B82F6', violet: '#8B5CF6' }
+
+function TrendTooltip({ active, payload, label, es, c }: { active?: boolean; payload?: any[]; label?: string; es: boolean; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  return (
+    <TooltipShell c={c} minWidth={160}>
+      <TTitle text={String(label ?? '')} c={c} />
+      <TRow label={es ? 'Puntaje Prom.' : 'Avg Score'} value={`${payload[0]?.value ?? 0}%`} valueStyle={{ color: c.accent }} c={c} />
+    </TooltipShell>
+  )
+}
+
+function PassFailTooltip({ active, payload, c }: { active?: boolean; payload?: any[]; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]
+  return (
+    <TooltipShell c={c} minWidth={140}>
+      <TTitle text={d.name} c={c} />
+      <TRow label="Count" value={d.value} valueStyle={{ color: d.payload.color }} c={c} />
+    </TooltipShell>
+  )
+}
+
+function ActivityTooltip({ active, payload, es, c }: { active?: boolean; payload?: any[]; es: boolean; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]
+  return (
+    <TooltipShell c={c} minWidth={160}>
+      <TTitle text={d.payload.name} c={c} />
+      <TRow label={es ? 'Sesiones' : 'Sessions'} value={d.value} valueStyle={{ color: c.accent }} c={c} />
+    </TooltipShell>
+  )
+}
+
+function ScoreDistTooltip({ active, payload, es, c }: { active?: boolean; payload?: any[]; es: boolean; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]
+  return (
+    <TooltipShell c={c} minWidth={140}>
+      <TTitle text={d.payload.label} c={c} />
+      <TRow label={es ? 'Sesiones' : 'Sessions'} value={d.value} valueStyle={{ color: c.accent }} c={c} />
+    </TooltipShell>
+  )
+}
 
 export default function OverviewPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
   const es = language === 'es'
+
+  const c  = useChartColors()
+  const tt = useTooltipColors()
 
   const { isLoading, isError, kpis, trend, scoreDist, actStats, userStats, sims, refetch } =
     useDashboardData()
@@ -201,7 +249,7 @@ export default function OverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="date" tickFormatter={(v) => v.slice(5)} />
                 <YAxis domain={[0, 100]} />
-                <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+                <Tooltip content={<TrendTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ stroke: c.cursorStroke, strokeWidth: 1.5 }} />
                 <Area type="monotone" dataKey="avgScore" stroke={COLORS.accent} strokeWidth={2} fill="url(#scoreGrad)" dot={false} />
               </AreaChart>
             </ResponsiveContainer>
@@ -216,7 +264,7 @@ export default function OverviewPage() {
                 <Pie data={passFailData} cx="50%" cy="50%" innerRadius={60} outerRadius={90} paddingAngle={4} dataKey="value">
                   {passFailData.map((entry, i) => <Cell key={i} fill={entry.color} />)}
                 </Pie>
-                <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+                <Tooltip content={<PassFailTooltip c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -240,7 +288,7 @@ export default function OverviewPage() {
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" domain={[0, 'dataMax + 5']} hide />
                 <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
-                <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+                <Tooltip content={<ActivityTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
                 <Bar dataKey="count" fill={COLORS.accent} radius={[0, 4, 4, 0]} barSize={20} />
               </BarChart>
             </ResponsiveContainer>
@@ -283,7 +331,7 @@ export default function OverviewPage() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="label" />
               <YAxis />
-              <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+              <Tooltip content={<ScoreDistTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
               <Bar dataKey="count" fill={COLORS.accent} radius={[4, 4, 0, 0]} barSize={40} />
             </BarChart>
           </ResponsiveContainer>

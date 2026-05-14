@@ -3,10 +3,28 @@ import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
 import { RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Tooltip, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, CartesianGrid } from 'recharts'
 import { MessageSquare, Brain } from 'lucide-react'
+import { useChartColors } from '../lib/chartTheme'
+import { TooltipShell, TRow, TTitle, useTooltipColors, type TooltipColors } from '../components/charts/TooltipShell'
+
+function RoundTooltip({ active, payload, es, c }: { active?: boolean; payload?: any[]; es: boolean; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  const round = payload[0]?.payload?.round ?? ''
+  return (
+    <TooltipShell c={c} minWidth={170}>
+      <TTitle text={String(round)} c={c} />
+      {payload.map((p: any) => (
+        <TRow key={p.dataKey} label={p.dataKey === 'avg' ? (es ? 'Puntaje Prom.' : 'Avg Score') : (es ? 'Tasa Aprobación' : 'Pass Rate')} value={`${p.value}%`} valueStyle={{ color: p.stroke ?? p.fill }} c={c} />
+      ))}
+    </TooltipShell>
+  )
+}
 
 export default function ConversationalPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
+  const c  = useChartColors()
+  const tt = useTooltipColors()
+  const es = language === 'es'
   const { isLoading, isError, roundStats, feedback, refetch } = useDashboardData()
 
   if (isLoading) {
@@ -60,7 +78,7 @@ export default function ConversationalPage() {
                 <PolarRadiusAxis domain={[0, 100]} tickCount={5} />
                 <Radar name="Avg" dataKey="avg" stroke="#3B82F6" fill="#3B82F6" fillOpacity={0.25} strokeWidth={2} />
                 <Radar name="Pass Rate" dataKey="passRate" stroke="#10B981" fill="#10B981" fillOpacity={0.15} strokeWidth={2} />
-                <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+                <Tooltip content={<RoundTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
               </RadarChart>
             </ResponsiveContainer>
           </div>
@@ -78,7 +96,7 @@ export default function ConversationalPage() {
                 <CartesianGrid strokeDasharray="3 3" vertical={false} />
                 <XAxis dataKey="round" />
                 <YAxis domain={[0, 100]} />
-                <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+                <Tooltip content={<RoundTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
                 <Bar dataKey="avg" fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={32} />
                 <Bar dataKey="passRate" fill="#10B981" radius={[4, 4, 0, 0]} barSize={32} />
               </BarChart>

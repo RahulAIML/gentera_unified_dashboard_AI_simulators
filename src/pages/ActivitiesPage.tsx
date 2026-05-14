@@ -3,12 +3,30 @@ import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
 import { Activity, CheckCircle2, XCircle } from 'lucide-react'
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell } from 'recharts'
+import { useChartColors } from '../lib/chartTheme'
+import { TooltipShell, TRow, TTitle, useTooltipColors, type TooltipColors } from '../components/charts/TooltipShell'
 
 const COLORS = ['#3B82F6', '#8B5CF6', '#06B6D4', '#10B981', '#F59E0B', '#EF4444']
+
+function ActivityBarTooltip({ active, payload, es, c }: { active?: boolean; payload?: any[]; es: boolean; c: TooltipColors }) {
+  if (!active || !payload?.length) return null
+  const d = payload[0]?.payload
+  return (
+    <TooltipShell c={c} minWidth={180}>
+      <TTitle text={d.fullName ?? d.name} c={c} />
+      <TRow label={es ? 'Sesiones' : 'Sessions'}      value={d.count}             valueStyle={{ color: d.color }}    c={c} />
+      <TRow label={es ? 'Puntaje Prom.' : 'Avg Score'} value={`${d.avgScore}%`}   valueStyle={{ color: c.accent }}   c={c} />
+      <TRow label={es ? 'Aprobación' : 'Pass Rate'}    value={`${d.passRate}%`}    valueStyle={{ color: '#10B981' }}  c={c} />
+    </TooltipShell>
+  )
+}
 
 export default function ActivitiesPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
+  const c  = useChartColors()
+  const tt = useTooltipColors()
+  const es = language === 'es'
   const { isLoading, isError, actStats, refetch } = useDashboardData()
 
   if (isLoading) {
@@ -54,7 +72,7 @@ export default function ActivitiesPage() {
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
               <XAxis dataKey="name" tick={{ fontSize: 11 }} />
               <YAxis />
-              <Tooltip contentStyle={{ background: '#111827', border: '1px solid #1A2D45', borderRadius: 8 }} />
+              <Tooltip content={<ActivityBarTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
               <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
                 {data.map((entry, index) => (
                   <Cell key={index} fill={entry.color} />

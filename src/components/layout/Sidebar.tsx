@@ -85,7 +85,7 @@ export function Sidebar() {
           <img
             src={gentaraLogo}
             alt="Gentera"
-            className="w-8 h-8 shrink-0 object-contain"
+            className="w-10 h-10 shrink-0 object-contain"
           />
           <AnimatePresence>
             {!collapsed && (
