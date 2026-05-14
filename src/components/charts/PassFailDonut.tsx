@@ -1,21 +1,24 @@
-import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
+﻿import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Language } from '../../store'
 import { useAppStore } from '../../store'
+import { TooltipShell, TRow, useTooltipColors, type TooltipColors } from './TooltipShell'
 
 interface CustomTooltipProps {
   active?: boolean
   payload?: Array<{ name: string; value: number }>
-  language: Language
+  c: TooltipColors
 }
 
-function CustomTooltip({ active, payload, language }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, c }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
+  const isPass = payload[0].name === 'Passed' || payload[0].name === 'Aprobado'
   return (
-    <div className="tooltip-dark px-3 py-2.5">
-      <p className="text-slate-300 text-xs">
-        {payload[0].name}: <span className="font-semibold">{payload[0].value}</span>
-      </p>
-    </div>
+    <TooltipShell minWidth={132} c={c}>
+      <TRow label={payload[0].name}
+            value={payload[0].value}
+            valueStyle={{ color: isPass ? c.success : '#f87171' }}
+            c={c} />
+    </TooltipShell>
   )
 }
 
@@ -28,6 +31,7 @@ interface Props {
 
 export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
   const theme = useAppStore((s) => s.theme)
+  const tt = useTooltipColors()
   const isDark = theme === 'dark'
   const total = pass + fail
   const rate = total ? Math.round((pass / total) * 100) : 0
@@ -59,10 +63,12 @@ export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
               <Cell fill="#10B981" />
               <Cell fill="#EF4444" />
             </Pie>
-            <Tooltip content={<CustomTooltip language={language} />} />
+            <Tooltip
+              content={<CustomTooltip c={tt} />}
+              wrapperStyle={{ zIndex: 50, outline: 'none' }}
+            />
           </PieChart>
         </ResponsiveContainer>
-        {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
           <span
             className="text-2xl font-bold"
@@ -75,7 +81,6 @@ export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
         </div>
       </div>
 
-      {/* Legend */}
       <div className="flex items-center gap-4 text-xs">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-success" />

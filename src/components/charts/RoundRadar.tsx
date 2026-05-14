@@ -1,4 +1,4 @@
-import {
+﻿import {
   RadarChart,
   Radar,
   PolarGrid,
@@ -9,24 +9,30 @@ import {
 import type { RoundStat } from '../../lib/analytics'
 import type { Language } from '../../store'
 import { useChartColors } from '../../lib/chartTheme'
+import { TooltipShell, TTitle, TRow, useTooltipColors, type TooltipColors } from './TooltipShell'
 
 interface CustomTooltipProps {
   active?: boolean
   payload?: Array<{ value: number; payload: RoundStat }>
   language: Language
+  c: TooltipColors
 }
 
-function CustomTooltip({ active, payload, language }: CustomTooltipProps) {
+function CustomTooltip({ active, payload, language, c }: CustomTooltipProps) {
   if (!active || !payload?.length) return null
   const d = payload[0]
   return (
-    <div className="tooltip-dark px-3 py-2.5">
-      <p className="text-slate-400 text-xs mb-1">
-        {language === 'es' ? 'Ronda' : 'Round'} {d.payload.round}
-      </p>
-      <p className="text-accent text-sm font-medium">{d.value.toFixed(2)}</p>
-      <p className="text-slate-500 text-xs">{d.payload.count} {language === 'es' ? 'sesiones' : 'sessions'}</p>
-    </div>
+    <TooltipShell minWidth={144} c={c}>
+      <TTitle text={`${language === 'es' ? 'Ronda' : 'Round'} ${d.payload.round}`} c={c} />
+      <TRow label={language === 'es' ? 'Promedio' : 'Average'}
+            value={d.value.toFixed(2)}
+            valueStyle={{ color: c.accent }}
+            c={c} />
+      <TRow label={language === 'es' ? 'Sesiones' : 'Sessions'}
+            value={d.payload.count}
+            valueStyle={{ color: c.value }}
+            c={c} />
+    </TooltipShell>
   )
 }
 
@@ -38,6 +44,7 @@ interface Props {
 
 export function RoundRadar({ data, language, height = 260 }: Props) {
   const c = useChartColors()
+  const tt = useTooltipColors()
   const radarData = data.map((d) => ({
     ...d,
     fullMark: 1,
@@ -57,7 +64,10 @@ export function RoundRadar({ data, language, height = 260 }: Props) {
           dataKey="label"
           tick={{ fontSize: 11, fill: c.tick }}
         />
-        <Tooltip content={<CustomTooltip language={language} />} />
+        <Tooltip
+          content={<CustomTooltip language={language} c={tt} />}
+          wrapperStyle={{ zIndex: 50, outline: 'none' }}
+        />
         <Radar
           name={language === 'es' ? 'Promedio' : 'Average'}
           dataKey="avg"

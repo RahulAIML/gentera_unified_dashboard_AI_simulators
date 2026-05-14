@@ -16,9 +16,9 @@ export function useChartColors(): ChartColors {
   return {
     tick:         isDark ? '#94a3b8' : '#334155',
     tickMuted:    isDark ? '#64748b' : '#475569',
-    labelList:    isDark ? '#64748b' : '#334155',
-    cursorFill:   isDark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
-    cursorStroke: isDark ? 'rgba(255,255,255,0.10)' : 'rgba(0,0,0,0.10)',
+    labelList:    isDark ? '#94a3b8' : '#334155',
+    cursorFill:   isDark ? 'rgba(255,255,255,0.07)' : 'rgba(59,130,246,0.07)',
+    cursorStroke: isDark ? 'rgba(255,255,255,0.18)' : 'rgba(59,130,246,0.25)',
     dotStroke:    isDark ? '#0C1628' : '#ffffff',
   }
 }
