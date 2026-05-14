@@ -15,33 +15,19 @@ export interface TooltipColors {
 }
 
 export function useTooltipColors(): TooltipColors {
-  const theme = useAppStore((s) => s.theme)
-  const isDark = theme === 'dark'
-  return isDark
-    ? {
-        bg:      '#0d1a2e',
-        border:  'rgba(255,255,255,0.09)',
-        shadow:  '0 8px 32px rgba(0,0,0,0.65), 0 2px 8px rgba(0,0,0,0.4)',
-        title:   '#f1f5f9',
-        label:   '#94a3b8',
-        value:   '#e2e8f0',
-        accent:  '#60a5fa',
-        success: '#34d399',
-        muted:   '#64748b',
-        divider: 'rgba(255,255,255,0.07)',
-      }
-    : {
-        bg:      '#ffffff',
-        border:  'rgba(0,0,0,0.09)',
-        shadow:  '0 4px 24px rgba(0,0,0,0.13), 0 1px 4px rgba(0,0,0,0.07)',
-        title:   '#0f172a',
-        label:   '#64748b',
-        value:   '#1e293b',
-        accent:  '#2563eb',
-        success: '#059669',
-        muted:   '#94a3b8',
-        divider: 'rgba(0,0,0,0.07)',
-      }
+  // Always dark tooltip — guaranteed readable on any background/theme
+  return {
+    bg:      '#1e293b',
+    border:  'rgba(255,255,255,0.12)',
+    shadow:  '0 8px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35)',
+    title:   '#ffffff',
+    label:   '#cbd5e1',
+    value:   '#ffffff',
+    accent:  '#60a5fa',
+    success: '#4ade80',
+    muted:   '#94a3b8',
+    divider: 'rgba(255,255,255,0.10)',
+  }
 }
 
 /* ── Presentational shell — receives colors as prop, NO hooks ── */
