@@ -15,18 +15,18 @@ export interface TooltipColors {
 }
 
 export function useTooltipColors(): TooltipColors {
-  // Always dark tooltip — guaranteed readable on any background/theme
+  // White card — maximum contrast on any theme (light, dark, or blue)
   return {
-    bg:      '#1e293b',
-    border:  'rgba(255,255,255,0.12)',
-    shadow:  '0 8px 28px rgba(0,0,0,0.55), 0 2px 8px rgba(0,0,0,0.35)',
-    title:   '#ffffff',
-    label:   '#cbd5e1',
-    value:   '#ffffff',
-    accent:  '#60a5fa',
-    success: '#4ade80',
-    muted:   '#94a3b8',
-    divider: 'rgba(255,255,255,0.10)',
+    bg:      '#ffffff',
+    border:  'rgba(0,0,0,0.10)',
+    shadow:  '0 8px 28px rgba(0,0,0,0.22), 0 2px 8px rgba(0,0,0,0.14)',
+    title:   '#0f172a',
+    label:   '#475569',
+    value:   '#0f172a',
+    accent:  '#2563eb',
+    success: '#16a34a',
+    muted:   '#64748b',
+    divider: 'rgba(0,0,0,0.08)',
   }
 }
 
