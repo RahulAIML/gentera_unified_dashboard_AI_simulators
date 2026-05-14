@@ -17,6 +17,6 @@ export default defineConfig({
   preview: {
     host: '0.0.0.0',
     port: parseInt(process.env.PORT ?? '4173'),
-    allowedHosts: 'all',
+    allowedHosts: ['dashboard-gentera.onrender.com'],
   },
 })
