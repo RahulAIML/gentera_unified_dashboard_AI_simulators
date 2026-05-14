@@ -11,6 +11,7 @@ import {
 import type { ScoreBucket } from '../../lib/analytics'
 import { PASS_THRESHOLD } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
 
 const BAR_COLOR = (bucket: ScoreBucket) => {
   if (bucket.max <= PASS_THRESHOLD) return '#EF4444'
@@ -43,23 +44,24 @@ interface Props {
 }
 
 export function ScoreHistogram({ data, language, height = 200 }: Props) {
+  const c = useChartColors()
   return (
     <ResponsiveContainer width="100%" height={height}>
       <BarChart data={data} margin={{ top: 4, right: 4, left: -20, bottom: 0 }} barCategoryGap="30%">
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           allowDecimals={false}
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
-        <Tooltip content={<CustomTooltip language={language} />} cursor={{ fill: 'rgba(255,255,255,0.03)' }} />
+        <Tooltip content={<CustomTooltip language={language} />} cursor={{ fill: c.cursorFill }} />
         <Bar dataKey="count" radius={[4, 4, 0, 0]}>
           {data.map((entry, i) => (
             <Cell key={i} fill={BAR_COLOR(entry)} fillOpacity={0.85} />

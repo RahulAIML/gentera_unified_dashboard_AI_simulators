@@ -8,6 +8,7 @@ import {
 } from 'recharts'
 import type { RoundStat } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -36,6 +37,7 @@ interface Props {
 }
 
 export function RoundRadar({ data, language, height = 260 }: Props) {
+  const c = useChartColors()
   const radarData = data.map((d) => ({
     ...d,
     fullMark: 1,
@@ -53,7 +55,7 @@ export function RoundRadar({ data, language, height = 260 }: Props) {
         <PolarGrid />
         <PolarAngleAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#64748b' }}
+          tick={{ fontSize: 11, fill: c.tick }}
         />
         <Tooltip content={<CustomTooltip language={language} />} />
         <Radar

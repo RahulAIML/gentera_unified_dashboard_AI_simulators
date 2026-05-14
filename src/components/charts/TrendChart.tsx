@@ -13,6 +13,7 @@ import { es, enUS } from 'date-fns/locale'
 import type { TrendPoint } from '../../lib/analytics'
 import { PASS_THRESHOLD } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -58,6 +59,7 @@ interface Props {
 
 export function TrendChart({ data, language, height = 260 }: Props) {
   const locale = language === 'es' ? es : enUS
+  const c = useChartColors()
 
   const formatted = data.map((d) => ({
     ...d,
@@ -82,13 +84,13 @@ export function TrendChart({ data, language, height = 260 }: Props) {
         <CartesianGrid strokeDasharray="3 3" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
         <YAxis
           domain={[0, 100]}
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
           tickFormatter={(v) => `${v}%`}
@@ -108,7 +110,7 @@ export function TrendChart({ data, language, height = 260 }: Props) {
         />
         <Tooltip
           content={<CustomTooltip language={language} />}
-          cursor={{ stroke: 'rgba(255,255,255,0.06)', strokeWidth: 1 }}
+          cursor={{ stroke: c.cursorStroke, strokeWidth: 1 }}
         />
         <Area
           type="monotone"
@@ -117,7 +119,7 @@ export function TrendChart({ data, language, height = 260 }: Props) {
           strokeWidth={2}
           fill="url(#scoreGrad)"
           dot={{ fill: '#3B82F6', strokeWidth: 0, r: 3 }}
-          activeDot={{ r: 5, fill: '#3B82F6', stroke: '#0C1628', strokeWidth: 2 }}
+          activeDot={{ r: 5, fill: '#3B82F6', stroke: c.dotStroke, strokeWidth: 2 }}
         />
       </AreaChart>
     </ResponsiveContainer>

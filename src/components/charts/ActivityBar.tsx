@@ -11,6 +11,7 @@ import {
 } from 'recharts'
 import type { ActivityStat } from '../../lib/analytics'
 import type { Language } from '../../store'
+import { useChartColors } from '../../lib/chartTheme'
 
 const COLORS = ['#3B82F6', '#10B981', '#8B5CF6', '#F59E0B', '#06B6D4', '#EF4444']
 
@@ -52,6 +53,7 @@ interface Props {
 }
 
 export function ActivityBar({ data, language, metric = 'avgScore', height = 200 }: Props) {
+  const c = useChartColors()
   const label =
     metric === 'count'
       ? (language === 'es' ? 'Sesiones' : 'Sessions')
@@ -81,7 +83,7 @@ export function ActivityBar({ data, language, metric = 'avgScore', height = 200 
         <XAxis
           type="number"
           domain={metric === 'count' ? [0, 'dataMax'] : [0, 100]}
-          tick={{ fontSize: 11, fill: '#475569' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
           tickFormatter={metric !== 'count' ? (v) => `${v}%` : undefined}
@@ -90,17 +92,17 @@ export function ActivityBar({ data, language, metric = 'avgScore', height = 200 
           type="category"
           dataKey="shortName"
           width={130}
-          tick={{ fontSize: 11, fill: '#94a3b8' }}
+          tick={{ fontSize: 11, fill: c.tick }}
           axisLine={false}
           tickLine={false}
         />
-        <Tooltip content={<CustomTooltip language={language} />} cursor={{ fill: 'rgba(255,255,255,0.02)' }} />
+        <Tooltip content={<CustomTooltip language={language} />} cursor={{ fill: c.cursorFill }} />
         <Bar dataKey={metric} radius={[0, 4, 4, 0]}>
           <LabelList
             dataKey={metric}
             position="right"
             formatter={(v: number) => metric !== 'count' ? `${v}%` : v}
-            style={{ fill: '#64748b', fontSize: 11 }}
+            style={{ fill: c.labelList, fontSize: 11 }}
           />
           {formatted.map((_, i) => (
             <Cell key={i} fill={COLORS[i % COLORS.length]} fillOpacity={0.85} />

@@ -1,5 +1,6 @@
 import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer } from 'recharts'
 import type { Language } from '../../store'
+import { useAppStore } from '../../store'
 
 interface CustomTooltipProps {
   active?: boolean
@@ -26,6 +27,8 @@ interface Props {
 }
 
 export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
+  const theme = useAppStore((s) => s.theme)
+  const isDark = theme === 'dark'
   const total = pass + fail
   const rate = total ? Math.round((pass / total) * 100) : 0
   const passLabel = language === 'es' ? 'Aprobado' : 'Passed'
@@ -61,8 +64,14 @@ export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
         </ResponsiveContainer>
         {/* Center label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none">
-          <span className="text-2xl font-bold text-slate-50">{rate}%</span>
-          <span className="text-xs text-slate-600">{passLabel}</span>
+          <span
+            className="text-2xl font-bold"
+            style={{ color: isDark ? '#f8fafc' : '#0f172a' }}
+          >{rate}%</span>
+          <span
+            className="text-xs"
+            style={{ color: isDark ? '#94a3b8' : '#475569' }}
+          >{passLabel}</span>
         </div>
       </div>
 
@@ -70,13 +79,13 @@ export function PassFailDonut({ pass, fail, language, size = 180 }: Props) {
       <div className="flex items-center gap-4 text-xs">
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-success" />
-          <span className="text-slate-400">{passLabel}</span>
-          <span className="text-slate-200 font-medium">{pass}</span>
+          <span style={{ color: isDark ? '#94a3b8' : '#475569' }}>{passLabel}</span>
+          <span className="font-medium" style={{ color: isDark ? '#e2e8f0' : '#1e293b' }}>{pass}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-2 h-2 rounded-full bg-danger" />
-          <span className="text-slate-400">{failLabel}</span>
-          <span className="text-slate-200 font-medium">{fail}</span>
+          <span style={{ color: isDark ? '#94a3b8' : '#475569' }}>{failLabel}</span>
+          <span className="font-medium" style={{ color: isDark ? '#e2e8f0' : '#1e293b' }}>{fail}</span>
         </div>
       </div>
     </div>
