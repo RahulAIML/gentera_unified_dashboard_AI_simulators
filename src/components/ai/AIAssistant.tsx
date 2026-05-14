@@ -25,7 +25,12 @@ export function AIAssistant() {
   }, [messages, thinking])
 
   const handleSend = async () => {
-    if (!input.trim() || thinking || isLoading || !kpis) return
+    // Guard log — tells us exactly why a send was blocked
+    if (!input.trim())  { console.warn('[AI] Blocked: empty input');        return }
+    if (thinking)       { console.warn('[AI] Blocked: already thinking');   return }
+    if (isLoading)      { console.warn('[AI] Blocked: dashboard data still loading'); return }
+    if (!kpis)          { console.warn('[AI] Blocked: kpis not ready');     return }
+
     const userText = input.trim()
     setInput('')
     setMessages((prev) => [...prev, { role: 'user', text: userText }])
@@ -34,33 +39,45 @@ export function AIAssistant() {
     const context = buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [])
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
+    console.group('[AI] handleSend')
+    console.log('API key present:', !!apiKey, '| key prefix:', apiKey ? apiKey.slice(0, 8) + '...' : 'MISSING')
+    console.log('Language:', language)
+    console.log('Context length (chars):', context.length)
+    console.log('Question:', userText)
+    console.groupEnd()
+
     if (!apiKey) {
-      setMessages((prev) => [
-        ...prev,
-        { role: 'model', text: t('ai_no_key') },
-      ])
+      console.error('[AI] VITE_GEMINI_API_KEY is not set — check Render Environment Variables and redeploy')
+      setMessages((prev) => [...prev, { role: 'model', text: t('ai_no_key') }])
       setThinking(false)
       return
     }
 
     try {
-      console.log('[AI] Sending request to gemini-2.5-flash', { question: userText, language })
+      console.log('[AI] Importing @google/generative-ai ...')
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
+      console.log('[AI] SDK loaded. Initialising gemini-2.5-flash ...')
       const genAI = new GoogleGenerativeAI(apiKey)
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
       const prompt = `${context}\n\nUser question (${language === 'es' ? 'Spanish' : 'English'}): ${userText}\n\nRespond in ${language === 'es' ? 'Spanish' : 'English'}. Be concise, data-driven, and actionable. Use bullet points when appropriate.`
+      console.log('[AI] Sending prompt — total length:', prompt.length, 'chars')
       const t0 = performance.now()
       const result = await model.generateContent(prompt)
       const elapsed = Math.round(performance.now() - t0)
       const text = result.response.text()
-      console.log(`[AI] Response received in ${elapsed}ms`, {
-        inputTokens: result.response.usageMetadata?.promptTokenCount,
+      console.log(`[AI] ✅ Response in ${elapsed}ms`, {
+        inputTokens:  result.response.usageMetadata?.promptTokenCount,
         outputTokens: result.response.usageMetadata?.candidatesTokenCount,
         finishReason: result.response.candidates?.[0]?.finishReason,
+        responseChars: text.length,
       })
       setMessages((prev) => [...prev, { role: 'model', text }])
-    } catch (err) {
-      console.error('[AI] Request failed:', err)
+    } catch (err: unknown) {
+      const e = err as { message?: string; status?: number; statusText?: string }
+      console.error('[AI] ❌ Request failed')
+      console.error('  message   :', e?.message)
+      console.error('  HTTP status:', e?.status, e?.statusText)
+      console.error('  full error :', err)
       setMessages((prev) => [...prev, { role: 'model', text: t('ai_error') }])
     } finally {
       setThinking(false)
