@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Send, Sparkles, Bot, User, Trash2 } from 'lucide-react'
+import ReactMarkdown from 'react-markdown'
 import { useAppStore } from '../../store'
 import { useTranslation } from '../../lib/i18n'
 import { useDashboardData } from '../../hooks/useDashboardData'
@@ -148,7 +149,24 @@ export function AIAssistant() {
                       : 'bg-card text-slate-300 border-line/30 rounded-tl-none'
                   }`}
                 >
-                  {m.text}
+                  {m.role === 'user' ? m.text : (
+                    <ReactMarkdown
+                      components={{
+                        p:      ({ children }) => <p className="mb-1.5 last:mb-0">{children}</p>,
+                        ul:     ({ children }) => <ul className="list-disc pl-4 mb-1.5 space-y-0.5">{children}</ul>,
+                        ol:     ({ children }) => <ol className="list-decimal pl-4 mb-1.5 space-y-0.5">{children}</ol>,
+                        li:     ({ children }) => <li>{children}</li>,
+                        strong: ({ children }) => <strong className="font-semibold text-slate-100">{children}</strong>,
+                        em:     ({ children }) => <em className="italic text-slate-300">{children}</em>,
+                        code:   ({ children }) => <code className="bg-white/10 rounded px-1 py-0.5 text-xs font-mono text-accent">{children}</code>,
+                        h1:     ({ children }) => <h1 className="font-bold text-slate-100 text-base mb-1">{children}</h1>,
+                        h2:     ({ children }) => <h2 className="font-semibold text-slate-100 text-sm mb-1">{children}</h2>,
+                        h3:     ({ children }) => <h3 className="font-medium text-slate-200 text-sm mb-1">{children}</h3>,
+                      }}
+                    >
+                      {m.text}
+                    </ReactMarkdown>
+                  )}
                 </div>
                 {m.role === 'user' && (
                   <div className="w-6 h-6 rounded-full bg-accent/10 flex items-center justify-center shrink-0 mt-0.5">
