@@ -8,12 +8,10 @@ yarn-error.log*
 dist/
 build/
 
-# Environment variables
+# Environment variables — block ALL .env files, no exceptions
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+*.env
 
 # IDE files
 .vscode/
