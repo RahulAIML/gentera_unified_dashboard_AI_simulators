@@ -1,3 +1,4 @@
+import gentaraLogo from '../../assets/gentera_logo.webp'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard,
@@ -82,7 +83,7 @@ export function Sidebar() {
       <div className="flex items-center h-16 px-4 border-b border-line/30 shrink-0">
         <div className="flex items-center gap-3 min-w-0">
           <img
-            src="/gentera-logo.svg"
+            src={gentaraLogo}
             alt="Gentera"
             className="w-8 h-8 shrink-0 object-contain"
           />
