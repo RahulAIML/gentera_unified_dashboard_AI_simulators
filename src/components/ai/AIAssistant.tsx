@@ -44,14 +44,23 @@ export function AIAssistant() {
     }
 
     try {
+      console.log('[AI] Sending request to gemini-2.5-flash', { question: userText, language })
       const { GoogleGenerativeAI } = await import('@google/generative-ai')
       const genAI = new GoogleGenerativeAI(apiKey)
-      const model = genAI.getGenerativeModel({ model: 'gemini-1.5-flash' })
+      const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
       const prompt = `${context}\n\nUser question (${language === 'es' ? 'Spanish' : 'English'}): ${userText}\n\nRespond in ${language === 'es' ? 'Spanish' : 'English'}. Be concise, data-driven, and actionable. Use bullet points when appropriate.`
+      const t0 = performance.now()
       const result = await model.generateContent(prompt)
+      const elapsed = Math.round(performance.now() - t0)
       const text = result.response.text()
+      console.log(`[AI] Response received in ${elapsed}ms`, {
+        inputTokens: result.response.usageMetadata?.promptTokenCount,
+        outputTokens: result.response.usageMetadata?.candidatesTokenCount,
+        finishReason: result.response.candidates?.[0]?.finishReason,
+      })
       setMessages((prev) => [...prev, { role: 'model', text }])
-    } catch {
+    } catch (err) {
+      console.error('[AI] Request failed:', err)
       setMessages((prev) => [...prev, { role: 'model', text: t('ai_error') }])
     } finally {
       setThinking(false)
