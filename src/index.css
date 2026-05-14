@@ -2,27 +2,27 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ─── Theme color variables ────────────────────────────────────── */
+/* ─── Theme color variables (RGB channels for opacity modifier support) ── */
 :root {
-  --color-bg: #ffffff;
-  --color-surface: #f8fafc;
-  --color-card: #ffffff;
-  --color-card-hover: #f1f5f9;
-  --color-line: #e2e8f0;
-  --color-line-subtle: #f1f5f9;
+  --color-bg: 255 255 255;
+  --color-surface: 248 250 252;
+  --color-card: 255 255 255;
+  --color-card-hover: 241 245 249;
+  --color-line: 226 232 240;
+  --color-line-subtle: 241 245 249;
   --text-base: #0f172a;
 }
 
 .dark {
-  --color-bg: #070E1C;
-  --color-surface: #0C1628;
-  --color-card: #0F1A2E;
-  --color-card-hover: #152035;
-  --color-line: #1A2D45;
-  --color-line-subtle: #112038;
+  --color-bg: 7 14 28;
+  --color-surface: 12 22 40;
+  --color-card: 15 26 46;
+  --color-card-hover: 21 32 53;
+  --color-line: 26 45 69;
+  --color-line-subtle: 17 32 56;
   --text-base: #f8fafc;
 }
-/* ─────────────────────────────────────────────────────────────── */
+/* ──────────────────────────────────────────────────────────────────────── */
 
 @layer base {
   *, *::before, *::after {
@@ -90,10 +90,15 @@ html:not(.dark) .text-slate-300 { color: #475569; }
 
 @layer components {
   .card {
-    @apply bg-card border border-line/60 rounded-xl;
+    @apply bg-card border rounded-xl;
+    border-color: rgb(var(--color-line) / 0.6);
   }
   .card-interactive {
-    @apply card cursor-pointer transition-all duration-200 hover:bg-card-hover hover:border-line;
+    @apply card cursor-pointer transition-all duration-200 hover:bg-card-hover;
+    border-color: rgb(var(--color-line) / 0.6);
+  }
+  .card-interactive:hover {
+    border-color: rgb(var(--color-line) / 1);
   }
   .badge {
     @apply inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-xs font-medium;
@@ -114,8 +119,13 @@ html:not(.dark) .text-slate-300 { color: #475569; }
     background: rgba(255, 255, 255, 0.05);
   }
   .input {
-    @apply bg-surface border border-line/60 rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-accent/50 focus:border-accent/40 transition-colors;
+    @apply bg-surface border rounded-lg px-3 py-2 text-sm placeholder:text-slate-400 focus:outline-none transition-colors;
+    border-color: rgb(var(--color-line) / 0.6);
     color: var(--text-base);
+  }
+  .input:focus {
+    box-shadow: 0 0 0 1px rgba(59,130,246,0.5);
+    border-color: rgba(59,130,246,0.4);
   }
   .select {
     @apply input cursor-pointer appearance-none pr-8;
@@ -131,8 +141,8 @@ html:not(.dark) .text-slate-300 { color: #475569; }
     @apply w-full;
   }
   .tooltip-dark {
-    background: var(--color-card) !important;
-    border: 1px solid var(--color-line) !important;
+    background: rgb(var(--color-card)) !important;
+    border: 1px solid rgb(var(--color-line)) !important;
     border-radius: 8px !important;
     box-shadow: 0 8px 24px rgba(0,0,0,0.15) !important;
   }

@@ -6,12 +6,12 @@ export default {
   theme: {
     extend: {
       colors: {
-        bg: 'var(--color-bg)',
-        surface: 'var(--color-surface)',
-        card: 'var(--color-card)',
-        'card-hover': 'var(--color-card-hover)',
-        line: 'var(--color-line)',
-        'line-subtle': 'var(--color-line-subtle)',
+        bg: 'rgb(var(--color-bg) / <alpha-value>)',
+        surface: 'rgb(var(--color-surface) / <alpha-value>)',
+        card: 'rgb(var(--color-card) / <alpha-value>)',
+        'card-hover': 'rgb(var(--color-card-hover) / <alpha-value>)',
+        line: 'rgb(var(--color-line) / <alpha-value>)',
+        'line-subtle': 'rgb(var(--color-line-subtle) / <alpha-value>)',
         accent: '#3B82F6',
         success: '#10B981',
         warning: '#F59E0B',
