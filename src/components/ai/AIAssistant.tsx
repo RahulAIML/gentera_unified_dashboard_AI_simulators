@@ -119,9 +119,9 @@ export function AIAssistant() {
     }
   }
 
-  const greeting = `${t('ai_greeting')} ${language === 'es'
-    ? `Ahora estás en la página de **${pageName}**.`
-    : `You're currently on the **${pageName}** page.`}`
+  const greeting = language === 'es'
+    ? `¡Hola! Soy tu asistente de inteligencia conversacional de Gentera. Estás en la sección **${pageName}**. Puedo ayudarte a analizar el rendimiento del equipo, identificar áreas de mejora y generar perspectivas. ¿En qué te puedo ayudar?`
+    : `Hello! I'm your Gentera Conversational Intelligence assistant. You're on the **${pageName}** section. I can help you analyze team performance, identify improvement areas, and generate data-driven insights. How can I help?`
 
   return (
     <>
@@ -158,7 +158,9 @@ export function AIAssistant() {
               <Sparkles className="w-4 h-4 text-violet" />
               <div>
                 <h3 className="text-sm font-semibold text-slate-100">{t('ai_title')}</h3>
-                <p className="text-[10px] text-slate-600">{t('ai_subtitle')}</p>
+                <p className="text-[10px] text-slate-600">
+                  {t('ai_subtitle')} · <span className="text-accent/80">{pageName}</span>
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-1">
@@ -186,7 +188,14 @@ export function AIAssistant() {
                   <Bot className="w-3.5 h-3.5 text-violet" />
                 </div>
                 <div className="bg-card rounded-xl rounded-tl-none px-3 py-2.5 text-sm text-slate-300 leading-relaxed border border-line/30">
-                  {greeting}
+                  <ReactMarkdown
+                    components={{
+                      p:      ({ children }) => <p className="mb-1 last:mb-0">{children}</p>,
+                      strong: ({ children }) => <strong className="font-semibold text-accent">{children}</strong>,
+                    }}
+                  >
+                    {greeting}
+                  </ReactMarkdown>
                 </div>
               </div>
             )}
