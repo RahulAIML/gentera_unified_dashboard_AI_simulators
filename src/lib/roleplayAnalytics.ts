@@ -54,9 +54,11 @@ function numMCsDone(s: RpFactSession): number {
 // Roleplay dates: "DD/MM/YYYY HH:MM:SS" or "DD/MM/YYYY"
 export function parseRpDate(raw: string): Date | null {
   try {
+    if (!raw) return null
     const [datePart] = raw.split(' ')
     const [dd, mm, yyyy] = datePart.split('/')
-    return new Date(`${yyyy}-${mm}-${dd}`)
+    const d = new Date(`${yyyy}-${mm}-${dd}`)
+    return isNaN(d.getTime()) ? null : d
   } catch {
     return null
   }
