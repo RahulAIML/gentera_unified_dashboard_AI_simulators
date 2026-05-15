@@ -31,6 +31,16 @@ export function parseScore(v: string | number | undefined | null): number {
   return isNaN(n) ? 0 : n
 }
 
+/**
+ * Parse a percentage field from the API and cap at 100.
+ * The rolplay.net backend pre-computes Porcentaje_Robin = (Puntos_Robin / Puntos_Maximos_Robin) × 100
+ * but the Robin AI can award more raw points than Puntos_Maximos_Robin, producing values like 111.
+ * We cap at 100 for all display purposes.
+ */
+function parsePct(v: string | number | undefined | null): number {
+  return Math.min(100, parseScore(v))
+}
+
 // MC field value: 1 / true / "1" = done; anything else (0, null, "No aplica") = not done
 function isMCDone(v: MCValue): boolean {
   return v === 1 || v === '1'
@@ -122,10 +132,10 @@ export function computeRpKPIs(
   return {
     totalSessions: sessions.length,
     avgTotalScore: Math.round(avg(sessions.map((s) => parseScore(s.Puntos_Totales)))),
-    avgRobinPct:   Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Robin)))),
-    avgFacialPct:  Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Facial)))),
-    avgVoicePct:   Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Voz)))),
-    avgWpmPct:     Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))),
+    avgRobinPct:   Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Robin)))),
+    avgFacialPct:  Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Facial)))),
+    avgVoicePct:   Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Voz)))),
+    avgWpmPct:     Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))),
     avgCriteriaRate: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
     activeUsers:    new Set(sessions.map((s) => s.ID_Usuario)).size,
     activeBranches: new Set(sessions.map((s) => s.Administrador_Nombre)).size,
@@ -161,7 +171,7 @@ export function computeRpTrend(sessions: RpFactSession[]): RpTrendPoint[] {
       date,
       label: date.slice(5),
       avgScore: Math.round(avg(group.map((s) => parseScore(s.Puntos_Totales)))),
-      avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+      avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
       count: group.length,
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -184,10 +194,10 @@ export function computeScoreDimensions(sessions: RpFactSession[], language: 'es'
     ? { robin: 'IA (Robin)', facial: 'Expresión Facial', voice: 'Voz', wpm: 'Palabras/Min' }
     : { robin: 'AI (Robin)', facial: 'Facial Expr.', voice: 'Voice', wpm: 'Words/Min' }
   return [
-    { dimension: 'robin',  label: labels.robin,  avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Robin)))),                  fullMark: 100 },
-    { dimension: 'facial', label: labels.facial, avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Facial)))),                 fullMark: 100 },
-    { dimension: 'voice',  label: labels.voice,  avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Voz)))),                    fullMark: 100 },
-    { dimension: 'wpm',    label: labels.wpm,    avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))), fullMark: 100 },
+    { dimension: 'robin',  label: labels.robin,  avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Robin)))),                  fullMark: 100 },
+    { dimension: 'facial', label: labels.facial, avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Facial)))),                 fullMark: 100 },
+    { dimension: 'voice',  label: labels.voice,  avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Voz)))),                    fullMark: 100 },
+    { dimension: 'wpm',    label: labels.wpm,    avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))), fullMark: 100 },
   ]
 }
 
@@ -231,7 +241,7 @@ export function computeRpActivityStats(
         name,
         count: group.length,
         avgScore: Math.round(avg(totals)),
-        avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+        avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
         avgCriteria: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
         avgAttempts: Math.round(avg(group.map((s) => s.Grabaciones_Totales ?? 0)) * 10) / 10,
         maxScore: Math.round(Math.max(...totals)),
@@ -293,7 +303,7 @@ export function computeRpUserStats(
         branch: group[0].Administrador_Nombre,
         count: group.length,
         avgScore: Math.round(avg(totals)),
-        avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+        avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
         avgCriteria: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
         bestScore: Math.round(Math.max(...totals)),
         avgAttempts: Math.round(avg(group.map((s) => s.Grabaciones_Totales ?? 0)) * 10) / 10,
@@ -331,10 +341,10 @@ export function computeRpBranchStats(sessions: RpFactSession[]): RpBranchStat[] 
       name,
       count: group.length,
       avgScore:  Math.round(avg(group.map((s) => parseScore(s.Puntos_Totales)))),
-      avgRobin:  Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
-      avgFacial: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Facial)))),
-      avgVoice:  Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Voz)))),
-      avgWpm:    Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))),
+      avgRobin:  Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
+      avgFacial: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Facial)))),
+      avgVoice:  Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Voz)))),
+      avgWpm:    Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))),
       activeUsers: new Set(group.map((s) => s.ID_Usuario)).size,
       activitiesRun: new Set(group.map((s) => s.Actividad_Rub_Nombre)).size,
     }))
@@ -414,7 +424,7 @@ export function computeRpSupervisorStats(
         ? Math.round(avg(supervised.map((s) => parseScore(s.Puntos_Totales))))
         : 0,
       avgRobin: supervised.length
-        ? Math.round(avg(supervised.map((s) => parseScore(s.Porcentaje_Robin))))
+        ? Math.round(avg(supervised.map((s) => parsePct(s.Porcentaje_Robin))))
         : 0,
       activeBranches: branchSet.size,
       activityKeys: supActMap.get(sup.Supervisor_Key) ?? [],
