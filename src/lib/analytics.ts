@@ -183,7 +183,7 @@ export function computeRoundStats(sims: Simulation[]): RoundStat[] {
       passRate: values.length ? pct(values.filter((v) => v > 0).length, values.length) : 0,
       count: values.length,
     }
-  })
+  }).filter((r) => r.count > 0)       // only include interactions that have real data
 }
 
 // ─────────────────────────────────────────────
