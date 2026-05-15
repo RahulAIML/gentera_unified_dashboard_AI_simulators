@@ -19,7 +19,7 @@ import { TooltipShell, TRow, TTitle, TDivider, useTooltipColors } from '../compo
 import { useChartColors } from '../lib/chartTheme'
 import {
   Brain, Mic, Eye, Zap, Users, Building2, ChevronDown,
-  RefreshCw, TrendingUp, Clock, PlayCircle, Download, CheckCircle2, Circle,
+  RefreshCw, TrendingUp, Clock, PlayCircle, Download, CheckCircle2,
 } from 'lucide-react'
 import { cn } from '../lib/cn'
 
@@ -418,7 +418,6 @@ export default function RoleplayPage() {
                     <span className="text-[9px] font-bold text-slate-400">{cr.index}</span>
                   </div>
                   <p className="text-xs text-slate-400 leading-snug">{cr.label}</p>
-                  <Circle className="w-3.5 h-3.5 text-slate-700 shrink-0 ml-auto mt-0.5" />
                 </div>
               ))}
             </div>
@@ -442,7 +441,6 @@ export default function RoleplayPage() {
                 <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('rp_col_branch')}</th>
                 <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_simulations')}</th>
                 <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_avg_score')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('rp_col_robin')}</th>
                 <th className="pb-2 text-[11px] font-medium text-slate-600">{es ? 'Intentos' : 'Attempts'}</th>
               </tr>
             </thead>
@@ -462,14 +460,6 @@ export default function RoleplayPage() {
                   <td className="py-2 pr-4 text-slate-500 text-xs truncate max-w-[120px]">{u.branch}</td>
                   <td className="py-2 pr-4 text-slate-400">{u.count}</td>
                   <td className="py-2 pr-4 font-semibold text-slate-100">{u.avgScore}</td>
-                  <td className="py-2 pr-4">
-                    <div className="flex items-center gap-2">
-                      <div className="w-14 h-1.5 bg-surface rounded-full">
-                        <div className="h-full rounded-full bg-violet" style={{ width: `${u.avgRobin}%` }} />
-                      </div>
-                      <span className="text-xs text-slate-400">{u.avgRobin}%</span>
-                    </div>
-                  </td>
                   <td className="py-2 text-slate-500 text-xs">{u.avgAttempts}</td>
                 </tr>
               ))}

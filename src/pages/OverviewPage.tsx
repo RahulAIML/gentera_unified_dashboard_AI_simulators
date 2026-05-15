@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useRef, useEffect } from 'react'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useFactRolPlayRub, useRpActividadesRub } from '../api/roleplayQueries'
 import { computeRpKPIs, parseRpDate } from '../lib/roleplayAnalytics'
@@ -11,6 +11,7 @@ import { DateRangeFilter, inDateRange } from '../components/ui/DateRangeFilter'
 import { downloadCSV, csvDate } from '../lib/csvExport'
 import {
   BarChart3, PlayCircle, CheckCircle2, Users, Brain, Mic2, Download,
+  Search, ChevronDown, X,
 } from 'lucide-react'
 import {
   AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
@@ -86,19 +87,62 @@ export default function OverviewPage() {
   const [from, setFrom] = useState('')
   const [to,   setTo]   = useState('')
 
-  // ── Filter sims by date range ────────────────
-  const filteredSims = useMemo(() => {
-    if (!sims.length || (!from && !to)) return sims
-    return sims.filter((s) => {
-      const date = s.Fecha_y_Hora?.split('T')[0]
-      return date ? inDateRange(date, from, to) : false
-    })
-  }, [sims, from, to])
+  // ── User selection filter ────────────────────
+  const [selectedUsers, setSelectedUsers] = useState<Set<string>>(new Set())
+  const [userSearch, setUserSearch] = useState('')
+  const [showUserDropdown, setShowUserDropdown] = useState(false)
+  const userDropdownRef = useRef<HTMLDivElement>(null)
 
-  const dateActive = !!(from || to)
+  const allUserNames = useMemo(
+    () => Array.from(new Set(sims.map((s) => s.Usuario_Nombre))).sort(),
+    [sims],
+  )
+  const filteredUserNames = useMemo(
+    () => userSearch.trim()
+      ? allUserNames.filter((n) => n.toLowerCase().includes(userSearch.toLowerCase()))
+      : allUserNames,
+    [allUserNames, userSearch],
+  )
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    function handleClick(e: MouseEvent) {
+      if (userDropdownRef.current && !userDropdownRef.current.contains(e.target as Node)) {
+        setShowUserDropdown(false)
+      }
+    }
+    document.addEventListener('mousedown', handleClick)
+    return () => document.removeEventListener('mousedown', handleClick)
+  }, [])
+
+  function toggleUser(name: string) {
+    setSelectedUsers((prev) => {
+      const next = new Set(prev)
+      if (next.has(name)) next.delete(name)
+      else next.add(name)
+      return next
+    })
+  }
+
+  // ── Filter sims by date range + selected users ──
+  const filteredSims = useMemo(() => {
+    let result = sims
+    if (from || to) {
+      result = result.filter((s) => {
+        const date = s.Fecha_y_Hora?.split('T')[0]
+        return date ? inDateRange(date, from, to) : false
+      })
+    }
+    if (selectedUsers.size > 0) {
+      result = result.filter((s) => selectedUsers.has(s.Usuario_Nombre))
+    }
+    return result
+  }, [sims, from, to, selectedUsers])
+
+  const dateActive = !!(from || to) || selectedUsers.size > 0
 
   // Re-derive all stats from filtered sims when date range is active
-  const activeKpis     = useMemo(() => dateActive && filteredSims.length ? computeKPIs(filteredSims, activities, members, admins) : kpis,     [dateActive, filteredSims, activities, members, admins, kpis])
+  const activeKpis     = useMemo(() => dateActive ? computeKPIs(filteredSims, activities, members, admins) : kpis,                            [dateActive, filteredSims, activities, members, admins, kpis])
   const activeActStats = useMemo(() => dateActive ? computeActivityStats(filteredSims, activities) : actStats, [dateActive, filteredSims, activities, actStats])
   const activeScoreDist= useMemo(() => dateActive ? computeScoreDistribution(filteredSims) : scoreDist,        [dateActive, filteredSims, scoreDist])
   const activeUserStats= useMemo(() => dateActive ? computeUserStats(filteredSims) : userStats,                [dateActive, filteredSims, userStats])
@@ -172,7 +216,7 @@ export default function OverviewPage() {
     )
   }
 
-  if (isError || !activeKpis) {
+  if (isError || (!dateActive && !activeKpis)) {
     return (
       <div className="flex flex-col items-center justify-center h-[60vh] gap-4">
         <p className="text-slate-400">{t('error')}</p>
@@ -204,6 +248,66 @@ export default function OverviewPage() {
             from={from} to={to} onFrom={setFrom} onTo={setTo}
             label={es ? 'Período' : 'Period'}
           />
+          {/* User filter dropdown */}
+          <div className="relative" ref={userDropdownRef}>
+            <button
+              onClick={() => setShowUserDropdown((v) => !v)}
+              className={`flex items-center gap-1.5 text-xs border rounded-lg px-3 py-1.5 transition-all ${
+                selectedUsers.size > 0
+                  ? 'text-accent border-accent/40 bg-accent/5'
+                  : 'text-slate-400 hover:text-slate-200 border-line/50 hover:border-line'
+              }`}
+            >
+              <Users className="w-3.5 h-3.5" />
+              {selectedUsers.size > 0
+                ? `${selectedUsers.size} ${es ? 'asesor(es)' : 'advisor(s)'}`
+                : (es ? 'Asesores' : 'Advisors')}
+              <ChevronDown className="w-3 h-3 opacity-60" />
+            </button>
+            {showUserDropdown && (
+              <div className="absolute top-full mt-1 right-0 z-30 w-64 bg-surface border border-line rounded-xl shadow-elevated overflow-hidden">
+                <div className="p-2 border-b border-line/30">
+                  <div className="relative">
+                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500" />
+                    <input
+                      value={userSearch}
+                      onChange={(e) => setUserSearch(e.target.value)}
+                      placeholder={es ? 'Buscar...' : 'Search...'}
+                      className="w-full bg-card border border-line/50 text-slate-300 text-xs rounded-lg pl-7 pr-3 py-1.5 focus:outline-none focus:border-accent"
+                    />
+                  </div>
+                </div>
+                {selectedUsers.size > 0 && (
+                  <div className="px-3 py-1.5 border-b border-line/30">
+                    <button
+                      onClick={() => setSelectedUsers(new Set())}
+                      className="text-[11px] text-danger hover:text-red-400 flex items-center gap-1"
+                    >
+                      <X className="w-2.5 h-2.5" /> {es ? 'Limpiar selección' : 'Clear selection'}
+                    </button>
+                  </div>
+                )}
+                <div className="max-h-52 overflow-y-auto">
+                  {filteredUserNames.map((name) => (
+                    <button
+                      key={name}
+                      onClick={() => toggleUser(name)}
+                      className={`w-full text-left px-3 py-2 text-xs flex items-center gap-2 hover:bg-white/[0.03] transition-colors ${
+                        selectedUsers.has(name) ? 'text-accent' : 'text-slate-400'
+                      }`}
+                    >
+                      <span className={`w-3 h-3 rounded border flex-shrink-0 flex items-center justify-center ${
+                        selectedUsers.has(name) ? 'bg-accent border-accent' : 'border-line'
+                      }`}>
+                        {selectedUsers.has(name) && <span className="text-white text-[8px] font-bold">✓</span>}
+                      </span>
+                      {name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
           <button
             onClick={exportSimCSV}
             className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all"
@@ -239,7 +343,7 @@ export default function OverviewPage() {
       {rpKpis && (
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-widest text-slate-600 mb-2 flex items-center gap-1.5">
-            <Mic2 className="w-3 h-3" />{es ? 'Roleplay IA' : 'Roleplay AI'}
+            <Mic2 className="w-3 h-3" />{es ? 'Rolplay IA' : 'Rolplay AI'}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <KpiCard icon={Mic2}     label={t('rp_kpi_sessions')}  value={rpKpis.totalSessions.toLocaleString()} sub={t('rp_kpi_sessions_sub')}  color="violet" />
@@ -255,9 +359,9 @@ export default function OverviewPage() {
         <div className="card p-5 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-200">{t('score_trend')}</h3>
-            {(from || to) && (
+            {dateActive && (
               <span className="text-[10px] text-accent bg-accent/10 px-2 py-0.5 rounded-full">
-                {from && to ? `${from} → ${to}` : from ? `≥ ${from}` : `≤ ${to}`}
+                {filteredSims.length} {es ? 'sims filtradas' : 'filtered sims'}
               </span>
             )}
           </div>

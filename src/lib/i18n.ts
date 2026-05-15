@@ -2,6 +2,10 @@ import type { Language } from '../store'
 
 const t = {
   es: {
+    // Branding (TopBar / Sidebar)
+    platform_tagline: 'Plataforma de Inteligencia Conversacional',
+    sidebar_tagline: 'Inteligencia de Entrenamiento IA',
+
     // Nav
     nav_overview: 'Vista General',
     nav_simulations: 'Simulaciones',
@@ -102,6 +106,7 @@ const t = {
     // AI Assistant
     ai_title: 'Asistente IA',
     ai_subtitle: 'Impulsado por Rolplay',
+
     ai_placeholder: 'Pregunta sobre el rendimiento del equipo...',
     ai_greeting: '¡Hola! Soy tu asistente de inteligencia conversacional de Gentera. Puedo ayudarte a analizar el rendimiento del equipo, identificar áreas de mejora y generar perspectivas sobre las simulaciones. ¿En qué te puedo ayudar?',
     ai_no_key: 'Configura VITE_GEMINI_API_KEY en tu archivo .env para habilitar el Asistente IA.',
@@ -142,11 +147,11 @@ const t = {
     expand: 'Expandir',
     copy: 'Copiar',
 
-    // Roleplay Intelligence
-    nav_roleplay: 'Inteligencia Roleplay',
+    // Rolplay Intelligence
+    nav_roleplay: 'Inteligencia Rolplay',
     nav_supervisors: 'Supervisores',
     nav_simulator: 'Simulador',
-    nav_roleplay_group: 'Roleplay',
+    nav_roleplay_group: 'Rolplay',
     nav_reports: 'Reportes',
     nav_settings: 'Configuración',
     nav_business_lines: 'Líneas de Negocio',
@@ -164,12 +169,12 @@ const t = {
     page_settings_title: 'Configuración',
     page_settings_subtitle: 'Preferencias de la plataforma',
 
-    page_roleplay_title: 'Inteligencia Roleplay',
-    page_roleplay_subtitle: 'Análisis de sesiones de roleplay con IA conversacional',
+    page_roleplay_title: 'Inteligencia Rolplay',
+    page_roleplay_subtitle: 'Análisis de sesiones de rolplay con IA conversacional',
     page_supervisors_title: 'Supervisores',
     page_supervisors_subtitle: 'Rendimiento por supervisor y sucursal',
 
-    rp_kpi_sessions: 'Sesiones Roleplay',
+    rp_kpi_sessions: 'Sesiones Rolplay',
     rp_kpi_sessions_sub: 'total de ejercicios',
     rp_kpi_avg_score: 'Puntaje Promedio',
     rp_kpi_avg_score_sub: 'puntos totales',
@@ -190,7 +195,7 @@ const t = {
     rp_score_dist: 'Distribución de Puntajes',
     rp_criteria_title: 'Cumplimiento de Criterios (MC)',
     rp_criteria_sub: 'Porcentaje de criterios cumplidos por sesión',
-    rp_top_performers: 'Mejores Desempeños — Roleplay',
+    rp_top_performers: 'Mejores Desempeños — Rolplay',
     rp_sessions_label: 'sesiones',
     rp_legend_total: 'Puntaje Total',
 
@@ -218,6 +223,10 @@ const t = {
     coaching_tip_pass2: '%. Considera apoyo extra para asesores por debajo del 60%.',
   },
   en: {
+    // Branding
+    platform_tagline: 'Conversational Intelligence Platform',
+    sidebar_tagline: 'AI Training Intelligence',
+
     nav_overview: 'Overview',
     nav_simulations: 'Simulations',
     nav_conversational: 'Conversational Intelligence',
@@ -348,11 +357,11 @@ const t = {
     expand: 'Expand',
     copy: 'Copy',
 
-    // Roleplay Intelligence
-    nav_roleplay: 'Roleplay Intelligence',
+    // Rolplay Intelligence
+    nav_roleplay: 'Rolplay Intelligence',
     nav_supervisors: 'Supervisors',
     nav_simulator: 'Simulator',
-    nav_roleplay_group: 'Roleplay',
+    nav_roleplay_group: 'Rolplay',
     nav_reports: 'Reports',
     nav_settings: 'Settings',
     nav_business_lines: 'Business Lines',
@@ -370,12 +379,12 @@ const t = {
     page_settings_title: 'Settings',
     page_settings_subtitle: 'Platform preferences',
 
-    page_roleplay_title: 'Roleplay Intelligence',
-    page_roleplay_subtitle: 'AI-driven conversational roleplay session analytics',
+    page_roleplay_title: 'Rolplay Intelligence',
+    page_roleplay_subtitle: 'AI-driven conversational rolplay session analytics',
     page_supervisors_title: 'Supervisors',
     page_supervisors_subtitle: 'Performance by supervisor and branch',
 
-    rp_kpi_sessions: 'Roleplay Sessions',
+    rp_kpi_sessions: 'Rolplay Sessions',
     rp_kpi_sessions_sub: 'total exercises',
     rp_kpi_avg_score: 'Average Score',
     rp_kpi_avg_score_sub: 'total points',
@@ -396,7 +405,7 @@ const t = {
     rp_score_dist: 'Score Distribution',
     rp_criteria_title: 'Criteria Fulfillment (MC)',
     rp_criteria_sub: 'Percentage of criteria met per session',
-    rp_top_performers: 'Top Performers — Roleplay',
+    rp_top_performers: 'Top Performers — Rolplay',
     rp_sessions_label: 'sessions',
     rp_legend_total: 'Total Score',
 

@@ -47,7 +47,7 @@ const NAV_GROUPS: { labelKey: string; items: NavItem[] }[] = [
   {
     labelKey: 'nav_roleplay_group',
     items: [
-      { to: '/roleplay', icon: Mic2, key: 'nav_roleplay' },
+      { to: '/rolplay', icon: Mic2, key: 'nav_roleplay' },
       { to: '/supervisors', icon: UserCheck, key: 'nav_supervisors' },
     ],
   },
@@ -100,7 +100,7 @@ export function Sidebar() {
                   Gentera
                 </span>
                 <span className="text-slate-600 text-[10px] leading-tight whitespace-nowrap">
-                  AI Training Intelligence
+                  {t('sidebar_tagline')}
                 </span>
               </motion.div>
             )}

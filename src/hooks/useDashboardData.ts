@@ -9,6 +9,7 @@ import {
   computeScoreDistribution,
   buildOrgTree,
   extractFeedback,
+  filterTestUsers,
 } from '../lib/analytics'
 
 export function useDashboardData() {
@@ -21,7 +22,7 @@ export function useDashboardData() {
   const isError = activitiesQ.isError || simsQ.isError || membersQ.isError || adminsQ.isError
 
   const activities = activitiesQ.data?.data ?? []
-  const sims = simsQ.data ?? []
+  const sims = filterTestUsers(simsQ.data ?? [])
   const members = membersQ.data?.data ?? []
   const admins = adminsQ.data?.data ?? []
 

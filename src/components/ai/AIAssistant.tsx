@@ -2,10 +2,29 @@ import { useState, useRef, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Send, Sparkles, Bot, User, Trash2 } from 'lucide-react'
 import ReactMarkdown from 'react-markdown'
+import { useLocation } from 'react-router-dom'
 import { useAppStore } from '../../store'
 import { useTranslation } from '../../lib/i18n'
 import { useDashboardData } from '../../hooks/useDashboardData'
+import { useRoleplayData } from '../../api/roleplayQueries'
 import { buildAIContext } from '../../lib/analytics'
+import { computeRpKPIs } from '../../lib/roleplayAnalytics'
+
+// Map route → page name (for AI context)
+const PAGE_LABELS: Record<string, { en: string; es: string }> = {
+  '/':               { en: 'Overview Dashboard',       es: 'Vista General' },
+  '/simulations':    { en: 'Simulations Log',           es: 'Registro de Simulaciones' },
+  '/conversational': { en: 'Conversational Intelligence', es: 'Inteligencia Conversacional' },
+  '/coaching':       { en: 'AI Coaching',               es: 'Coaching IA' },
+  '/leaderboard':    { en: 'Leaderboard',               es: 'Clasificación' },
+  '/activities':     { en: 'Activities',                es: 'Actividades' },
+  '/organization':   { en: 'Organization',              es: 'Organización' },
+  '/rolplay':        { en: 'Rolplay Intelligence',      es: 'Inteligencia Rolplay' },
+  '/supervisors':    { en: 'Supervisors',               es: 'Supervisores' },
+  '/business-lines': { en: 'Business Lines',            es: 'Líneas de Negocio' },
+  '/reports':        { en: 'Reports',                   es: 'Reportes' },
+  '/settings':       { en: 'Settings',                  es: 'Configuración' },
+}
 
 interface Message {
   role: 'user' | 'model'
@@ -15,11 +34,16 @@ interface Message {
 export function AIAssistant() {
   const { aiOpen, toggleAI, language } = useAppStore()
   const t = useTranslation(language)
+  const location = useLocation()
   const { kpis, sims, activities, actStats, userStats, isLoading } = useDashboardData()
+  const { sessions: rpSessions, actividades } = useRoleplayData()
   const [messages, setMessages] = useState<Message[]>([])
   const [input, setInput] = useState('')
   const [thinking, setThinking] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
+
+  const isRolplayPage = location.pathname === '/rolplay' || location.pathname === '/supervisors'
+  const pageName = PAGE_LABELS[location.pathname]?.[language] ?? location.pathname
 
   useEffect(() => {
     bottomRef.current?.scrollIntoView({ behavior: 'smooth' })
@@ -37,7 +61,17 @@ export function AIAssistant() {
     setMessages((prev) => [...prev, { role: 'user', text: userText }])
     setThinking(true)
 
-    const context = buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [])
+    // Build page-specific context prefix
+    let pageContext = `[Current page: ${pageName}]\n\n`
+    if (isRolplayPage && rpSessions.length > 0) {
+      const rpKpis = computeRpKPIs(rpSessions, actividades)
+      pageContext += `ROLPLAY DATA (${pageName})\n` +
+        `Sessions: ${rpKpis.totalSessions} | Avg Score: ${rpKpis.avgTotalScore} | ` +
+        `AI Robin: ${rpKpis.avgRobinPct}% | Voice: ${rpKpis.avgVoicePct}% | ` +
+        `Facial: ${rpKpis.avgFacialPct}% | WPM: ${rpKpis.avgWpmPct}% | ` +
+        `Active Users: ${rpKpis.activeUsers} | Branches: ${rpKpis.activeBranches}\n\n`
+    }
+    const context = pageContext + buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [])
     const apiKey = import.meta.env.VITE_GEMINI_API_KEY
 
     console.group('[AI] handleSend')
@@ -60,7 +94,7 @@ export function AIAssistant() {
       console.log('[AI] SDK loaded. Initialising gemini-2.5-flash ...')
       const genAI = new GoogleGenerativeAI(apiKey)
       const model = genAI.getGenerativeModel({ model: 'gemini-2.5-flash' })
-      const prompt = `${context}\n\nUser question (${language === 'es' ? 'Spanish' : 'English'}): ${userText}\n\nRespond in ${language === 'es' ? 'Spanish' : 'English'}. Be concise, data-driven, and actionable. Use bullet points when appropriate.`
+      const prompt = `${context}\n\nThe user is currently viewing the "${pageName}" page. Focus your response on data relevant to this page.\n\nUser question (${language === 'es' ? 'Spanish' : 'English'}): ${userText}\n\nRespond in ${language === 'es' ? 'Spanish' : 'English'}. Be concise, data-driven, and actionable. Focus on the current page context. Use bullet points when appropriate.`
       console.log('[AI] Sending prompt — total length:', prompt.length, 'chars')
       const t0 = performance.now()
       const result = await model.generateContent(prompt)
@@ -85,7 +119,9 @@ export function AIAssistant() {
     }
   }
 
-  const greeting = t('ai_greeting')
+  const greeting = `${t('ai_greeting')} ${language === 'es'
+    ? `Ahora estás en la página de **${pageName}**.`
+    : `You're currently on the **${pageName}** page.`}`
 
   return (
     <>

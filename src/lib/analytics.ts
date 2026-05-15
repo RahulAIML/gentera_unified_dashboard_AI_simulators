@@ -5,6 +5,27 @@ export type { Simulation }
 export const PASS_THRESHOLD = 60
 
 // ─────────────────────────────────────────────
+// Test / demo user blocklist
+// ─────────────────────────────────────────────
+const TEST_USER_BLOCKLIST = new Set([
+  'Tester Gentera Demo',
+  'Tester Gentera Grupal',
+  'Tester Gentera Completo',
+  'Tester Gentera Individual',
+  'Piloto 1', 'Piloto 2', 'Piloto 8',
+  'Guadaupe Cuevas', 'Guadalupe Cuevas ',
+  'Regina Guzmán', 'Andrea Fernanda',
+  'Aurea Regina Guzmán Montero',
+  'Andrea Campos', 'Regina',
+  'Mario ', 'Gabriel Regalado', 'Gentera01',
+])
+
+/** Remove simulations belonging to known test/demo accounts */
+export function filterTestUsers(sims: Simulation[]): Simulation[] {
+  return sims.filter((s) => !TEST_USER_BLOCKLIST.has(s.Usuario_Nombre))
+}
+
+// ─────────────────────────────────────────────
 // Helpers
 // ─────────────────────────────────────────────
 function avg(nums: number[]): number {

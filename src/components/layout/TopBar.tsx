@@ -19,7 +19,7 @@ export function TopBar() {
       {/* Left: Brand tagline on large screens */}
       <div className="hidden lg:flex items-center gap-2">
         <span className="text-xs text-slate-500 font-medium tracking-wide uppercase">
-          Conversational Intelligence Platform
+          {t('platform_tagline')}
         </span>
       </div>
 
