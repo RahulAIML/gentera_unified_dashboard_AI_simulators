@@ -328,22 +328,53 @@ export function AIAssistant() {
       return
     }
 
-    // Build full prompt
-    const lang      = language === 'es' ? 'Spanish' : 'English'
-    const imageHint = imageForSend
-      ? '\n[User has shared an image. Analyse it in the context of the dashboard data above.]'
+    // Build full prompt text
+    const lang = language === 'es' ? 'Spanish' : 'English'
+
+    // When an image is present, give a clear, explicit vision instruction so
+    // the model knows it MUST describe what it sees — not just use the text context.
+    const imageInstruction = imageForSend
+      ? (language === 'es'
+          ? '\n\nSe ha adjuntado una imagen a este mensaje. ' +
+            'PRIMERO: describe con detalle lo que ves en la imagen — números, gráficas, tablas, ' +
+            'porcentajes, nombres de usuarios, colores y cualquier dato visible. ' +
+            'DESPUÉS: relaciona esas observaciones con los datos del dashboard de arriba. ' +
+            'Si el usuario hizo una pregunta adicional, respóndela basándote en lo que ves en la imagen.'
+          : '\n\nAn image has been attached to this message. ' +
+            'FIRST: describe in detail what you see in the image — numbers, charts, tables, ' +
+            'percentages, user names, colors, and any visible data. ' +
+            'THEN: relate those observations to the dashboard data above. ' +
+            'If the user asked an additional question, answer it based on what you see in the image.')
       : ''
-    const userPart = userText
-      ? `\n\nUser (${lang}): ${userText}`
-      : `\n\nUser shared an image (${lang}). Please analyse it in relation to the dashboard data.`
+
+    const userQuestion = userText
+      ? `\n\nUser question (${lang}): ${userText}`
+      : imageForSend
+        ? `\n\n(No additional text — please analyse the image as instructed above.)`
+        : ''
 
     const fullPrompt =
       buildContext() +
-      imageHint +
+      imageInstruction +
       `\n\nYou are the Gentera AI assistant. Respond in ${lang}. ` +
-      `The user is on the "${pageName}" page — focus on data relevant to this page. ` +
-      `Be concise, data-driven, and actionable. Use bullet points where helpful.` +
-      userPart
+      `The user is on the "${pageName}" page. Be concise, data-driven, and actionable.` +
+      userQuestion
+
+    // Validate image data before sending
+    if (imageForSend && (!imageForSend.base64 || imageForSend.base64.length < 100)) {
+      setThinking(false)
+      setMessages((prev) => [
+        ...prev,
+        {
+          role: 'model',
+          text: language === 'es'
+            ? 'No se pudo procesar la imagen. Intenta con otra imagen.'
+            : 'Image could not be processed. Please try a different image.',
+          isError: true,
+        },
+      ])
+      return
+    }
 
     // Reset abort flag for this new request
     abortRef.current.shouldAbort = false
@@ -362,18 +393,23 @@ export function AIAssistant() {
       const genAI = new GoogleGenerativeAI(apiKey)
       const model = genAI.getGenerativeModel({ model: GEMINI_MODEL })
 
-      // Build content parts
-      const contentParts: Parameters<typeof model.generateContentStream>[0] =
-        imageForSend
-          ? [
-              { text: fullPrompt },
-              { inlineData: { mimeType: imageForSend.mimeType, data: imageForSend.base64 } },
-            ]
-          : fullPrompt
+      /**
+       * Build parts with their exact individual types so TypeScript can resolve
+       * each to the correct member of the SDK's discriminated Part union.
+       *
+       * Image is placed BEFORE the text prompt — the model processes visual
+       * context first, which produces more grounded image analysis responses.
+       */
+      const textPart  = { text: fullPrompt }                       // → TextPart
+      const imagePart = imageForSend
+        ? { inlineData: { mimeType: imageForSend.mimeType, data: imageForSend.base64 } }  // → InlineDataPart
+        : null
 
       // Race the stream initiation against timeout
       const streamResult = await Promise.race([
-        model.generateContentStream(contentParts),
+        imagePart
+          ? model.generateContentStream([imagePart, textPart])     // multimodal: image + text
+          : model.generateContentStream(fullPrompt),               // text-only
         timeoutPromise,
       ])
 
