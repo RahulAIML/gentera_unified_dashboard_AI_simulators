@@ -2,6 +2,10 @@ import type { Language } from '../store'
 
 const t = {
   es: {
+    // Branding (TopBar / Sidebar)
+    platform_tagline: 'Plataforma de Inteligencia Conversacional',
+    sidebar_tagline: 'Inteligencia de Entrenamiento IA',
+
     // Nav
     nav_overview: 'Vista General',
     nav_simulations: 'Simulaciones',
@@ -40,7 +44,7 @@ const t = {
     top_performers: 'Mejores Desempeños',
     ai_insights: 'Perspectivas IA',
     score_distribution: 'Distribución de Puntajes',
-    round_performance: 'Rendimiento por Ronda',
+    round_performance: 'Rendimiento por Interacción',
     interaction_explorer: 'Explorador de Interacciones',
     coaching_feedback: 'Retroalimentación de Coaching',
     feedback_analysis: 'Análisis de Feedback',
@@ -59,7 +63,7 @@ const t = {
     col_pass_rate: 'Tasa Aprob.',
     col_best: 'Mejor',
     col_details: 'Ver',
-    col_round: 'Ronda',
+    col_round: 'Interacción',
     col_question: 'Pregunta',
     col_response: 'Respuesta',
     col_feedback: 'Retroalimentación',
@@ -87,7 +91,7 @@ const t = {
     page_sims_title: 'Simulaciones',
     page_sims_subtitle: 'Registro completo de sesiones de simulación',
     page_conv_title: 'Inteligencia Conversacional',
-    page_conv_subtitle: 'Análisis profundo de interacciones ronda a ronda',
+    page_conv_subtitle: 'Análisis profundo de interacción por interacción',
     page_coaching_title: 'Coaching IA',
     page_coaching_subtitle: 'Perspectivas de retroalimentación por inteligencia artificial',
     page_leader_title: 'Clasificación',
@@ -102,6 +106,7 @@ const t = {
     // AI Assistant
     ai_title: 'Asistente IA',
     ai_subtitle: 'Impulsado por Rolplay',
+
     ai_placeholder: 'Pregunta sobre el rendimiento del equipo...',
     ai_greeting: '¡Hola! Soy tu asistente de inteligencia conversacional de Gentera. Puedo ayudarte a analizar el rendimiento del equipo, identificar áreas de mejora y generar perspectivas sobre las simulaciones. ¿En qué te puedo ayudar?',
     ai_no_key: 'Configura VITE_GEMINI_API_KEY en tu archivo .env para habilitar el Asistente IA.',
@@ -129,7 +134,7 @@ const t = {
     close: 'Cerrar',
     search: 'Buscar',
     export: 'Exportar',
-    round: 'Ronda',
+    round: 'Interacción',
     points: 'Puntos',
     question: 'Pregunta',
     response: 'Respuesta',
@@ -142,11 +147,11 @@ const t = {
     expand: 'Expandir',
     copy: 'Copiar',
 
-    // Roleplay Intelligence
-    nav_roleplay: 'Inteligencia Roleplay',
+    // Rolplay Intelligence
+    nav_roleplay: 'Inteligencia Rolplay',
     nav_supervisors: 'Supervisores',
     nav_simulator: 'Simulador',
-    nav_roleplay_group: 'Roleplay',
+    nav_roleplay_group: 'Rolplay',
     nav_reports: 'Reportes',
     nav_settings: 'Configuración',
     nav_business_lines: 'Líneas de Negocio',
@@ -164,12 +169,12 @@ const t = {
     page_settings_title: 'Configuración',
     page_settings_subtitle: 'Preferencias de la plataforma',
 
-    page_roleplay_title: 'Inteligencia Roleplay',
-    page_roleplay_subtitle: 'Análisis de sesiones de roleplay con IA conversacional',
+    page_roleplay_title: 'Inteligencia Rolplay',
+    page_roleplay_subtitle: 'Análisis de sesiones de rolplay con IA conversacional',
     page_supervisors_title: 'Supervisores',
     page_supervisors_subtitle: 'Rendimiento por supervisor y sucursal',
 
-    rp_kpi_sessions: 'Sesiones Roleplay',
+    rp_kpi_sessions: 'Sesiones Rolplay',
     rp_kpi_sessions_sub: 'total de ejercicios',
     rp_kpi_avg_score: 'Puntaje Promedio',
     rp_kpi_avg_score_sub: 'puntos totales',
@@ -190,7 +195,7 @@ const t = {
     rp_score_dist: 'Distribución de Puntajes',
     rp_criteria_title: 'Cumplimiento de Criterios (MC)',
     rp_criteria_sub: 'Porcentaje de criterios cumplidos por sesión',
-    rp_top_performers: 'Mejores Desempeños — Roleplay',
+    rp_top_performers: 'Mejores Desempeños — Rolplay',
     rp_sessions_label: 'sesiones',
     rp_legend_total: 'Puntaje Total',
 
@@ -210,7 +215,7 @@ const t = {
     coaching_ai_title: 'Coaching con IA',
     coaching_ai_desc: 'Usa el Asistente IA para obtener recomendaciones de coaching personalizadas, identificar debilidades del equipo y generar resúmenes ejecutivos.',
     coaching_ai_cta: 'Abrir Asistente IA',
-    coaching_tip_rounds: 'Enfoca el entrenamiento en rondas con menor tasa de aprobación:',
+    coaching_tip_rounds: 'Enfoca el entrenamiento en interacciones con menor tasa de aprobación:',
     coaching_tip_activities: 'Revisa el material para:',
     coaching_tip_avg: 'El puntaje promedio de la plataforma es',
     coaching_tip_avg2: '%. Establece el objetivo en',
@@ -218,6 +223,10 @@ const t = {
     coaching_tip_pass2: '%. Considera apoyo extra para asesores por debajo del 60%.',
   },
   en: {
+    // Branding
+    platform_tagline: 'Conversational Intelligence Platform',
+    sidebar_tagline: 'AI Training Intelligence',
+
     nav_overview: 'Overview',
     nav_simulations: 'Simulations',
     nav_conversational: 'Conversational Intelligence',
@@ -252,7 +261,7 @@ const t = {
     top_performers: 'Top Performers',
     ai_insights: 'AI Insights',
     score_distribution: 'Score Distribution',
-    round_performance: 'Round Performance',
+    round_performance: 'Interaction Performance',
     interaction_explorer: 'Interaction Explorer',
     coaching_feedback: 'Coaching Feedback',
     feedback_analysis: 'Feedback Analysis',
@@ -270,7 +279,7 @@ const t = {
     col_pass_rate: 'Pass Rate',
     col_best: 'Best',
     col_details: 'View',
-    col_round: 'Round',
+    col_round: 'Interaction',
     col_question: 'Question',
     col_response: 'Response',
     col_feedback: 'Feedback',
@@ -295,7 +304,7 @@ const t = {
     page_sims_title: 'Simulations',
     page_sims_subtitle: 'Complete record of simulation sessions',
     page_conv_title: 'Conversational Intelligence',
-    page_conv_subtitle: 'Deep analysis of round-by-round interactions',
+    page_conv_subtitle: 'Deep analysis of interaction-by-interaction',
     page_coaching_title: 'AI Coaching',
     page_coaching_subtitle: 'AI-generated coaching feedback insights',
     page_leader_title: 'Leaderboard',
@@ -335,7 +344,7 @@ const t = {
     close: 'Close',
     search: 'Search',
     export: 'Export',
-    round: 'Round',
+    round: 'Interaction',
     points: 'Points',
     question: 'Question',
     response: 'Response',
@@ -348,11 +357,11 @@ const t = {
     expand: 'Expand',
     copy: 'Copy',
 
-    // Roleplay Intelligence
-    nav_roleplay: 'Roleplay Intelligence',
+    // Rolplay Intelligence
+    nav_roleplay: 'Rolplay Intelligence',
     nav_supervisors: 'Supervisors',
     nav_simulator: 'Simulator',
-    nav_roleplay_group: 'Roleplay',
+    nav_roleplay_group: 'Rolplay',
     nav_reports: 'Reports',
     nav_settings: 'Settings',
     nav_business_lines: 'Business Lines',
@@ -370,12 +379,12 @@ const t = {
     page_settings_title: 'Settings',
     page_settings_subtitle: 'Platform preferences',
 
-    page_roleplay_title: 'Roleplay Intelligence',
-    page_roleplay_subtitle: 'AI-driven conversational roleplay session analytics',
+    page_roleplay_title: 'Rolplay Intelligence',
+    page_roleplay_subtitle: 'AI-driven conversational rolplay session analytics',
     page_supervisors_title: 'Supervisors',
     page_supervisors_subtitle: 'Performance by supervisor and branch',
 
-    rp_kpi_sessions: 'Roleplay Sessions',
+    rp_kpi_sessions: 'Rolplay Sessions',
     rp_kpi_sessions_sub: 'total exercises',
     rp_kpi_avg_score: 'Average Score',
     rp_kpi_avg_score_sub: 'total points',
@@ -396,7 +405,7 @@ const t = {
     rp_score_dist: 'Score Distribution',
     rp_criteria_title: 'Criteria Fulfillment (MC)',
     rp_criteria_sub: 'Percentage of criteria met per session',
-    rp_top_performers: 'Top Performers — Roleplay',
+    rp_top_performers: 'Top Performers — Rolplay',
     rp_sessions_label: 'sessions',
     rp_legend_total: 'Total Score',
 
@@ -416,7 +425,7 @@ const t = {
     coaching_ai_title: 'AI-Powered Coaching',
     coaching_ai_desc: 'Use the AI Assistant to get personalized coaching recommendations, identify team weaknesses, and generate executive summaries.',
     coaching_ai_cta: 'Open AI Assistant',
-    coaching_tip_rounds: 'Focus training on rounds with lower pass rates:',
+    coaching_tip_rounds: 'Focus training on interactions with lower pass rates:',
     coaching_tip_activities: 'Review material for:',
     coaching_tip_avg: 'Average platform score is',
     coaching_tip_avg2: '%. Set target at',

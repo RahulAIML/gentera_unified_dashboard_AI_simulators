@@ -1,7 +1,7 @@
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
-import { Brain, TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react'
+import { TrendingUp, AlertTriangle, Lightbulb } from 'lucide-react'
 
 export default function CoachingPage() {
   const { language } = useAppStore()
@@ -36,7 +36,7 @@ export default function CoachingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_coaching_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_coaching_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_coaching_subtitle')}</p>
       </div>
 
@@ -85,7 +85,7 @@ export default function CoachingPage() {
           </div>
           <div className="space-y-2 text-xs text-slate-400">
             {weakRounds.length > 0 && (
-              <p>{t('coaching_tip_rounds')} {weakRounds.map((r) => `R${r.round}`).join(', ')}.</p>
+              <p>{t('coaching_tip_rounds')} {weakRounds.map((r) => `${t('round')} ${r.round}`).join(', ')}.</p>
             )}
             {weakActivities.length > 0 && (
               <p>{t('coaching_tip_activities')} {weakActivities.map((a) => a.name).join(', ')}.</p>
@@ -96,18 +96,6 @@ export default function CoachingPage() {
         </div>
       </div>
 
-      {/* AI CTA */}
-      <div className="card p-6 text-center">
-        <Brain className="w-8 h-8 text-violet mx-auto mb-3" />
-        <h3 className="text-base font-semibold text-slate-200 mb-1">{t('coaching_ai_title')}</h3>
-        <p className="text-sm text-slate-500 mb-4 max-w-md mx-auto">{t('coaching_ai_desc')}</p>
-        <button
-          onClick={() => useAppStore.getState().toggleAI()}
-          className="btn-primary mx-auto"
-        >
-          {t('coaching_ai_cta')}
-        </button>
-      </div>
     </div>
   )
 }

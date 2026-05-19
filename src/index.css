@@ -139,8 +139,17 @@ html:not(.dark) .text-slate-400 { color: #64748b; }
     animation: pageFadeIn 0.25s ease-out both;
   }
   .metric-value {
-    @apply text-3xl font-bold tracking-tight;
+    @apply text-2xl sm:text-3xl font-bold tracking-tight;
     color: var(--text-base);
+  }
+  /* Responsive table wrapper */
+  .table-responsive {
+    @apply w-full overflow-x-auto -mx-0;
+  }
+  /* Prevent long words from overflowing cards */
+  .card, .card-interactive {
+    word-break: break-word;
+    overflow-wrap: break-word;
   }
   .chart-container {
     @apply w-full;

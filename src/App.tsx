@@ -36,7 +36,7 @@ export default function App() {
               <Route path="/activities" element={<ActivitiesPage />} />
               <Route path="/organization" element={<OrganizationPage />} />
               <Route path="/coaching" element={<CoachingPage />} />
-              <Route path="/roleplay" element={<RoleplayPage />} />
+              <Route path="/rolplay" element={<RoleplayPage />} />
               <Route path="/supervisors" element={<SupervisorsPage />} />
               <Route path="/business-lines" element={<BusinessLinesPage />} />
               <Route path="/reports" element={<ReportsPage />} />

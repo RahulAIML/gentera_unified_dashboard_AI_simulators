@@ -30,12 +30,12 @@ export interface Simulation {
   Pregunta_4: string | null
   Pregunta_5: string | null
   Pregunta_6: string | null
-  Puntos_1: number | null
-  Puntos_2: number | null
-  Puntos_3: number | null
-  Puntos_4: number | null
-  Puntos_5: number | null
-  Puntos_6: number | null
+  Puntos_1: number | string | null
+  Puntos_2: number | string | null
+  Puntos_3: number | string | null
+  Puntos_4: number | string | null
+  Puntos_5: number | string | null
+  Puntos_6: number | string | null
   Puntos_Totales: number
   Respuesta_1: string | null
   Respuesta_2: string | null

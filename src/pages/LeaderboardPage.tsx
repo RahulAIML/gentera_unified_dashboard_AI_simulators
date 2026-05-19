@@ -1,7 +1,8 @@
+import { useState, useMemo } from 'react'
 import { useDashboardData } from '../hooks/useDashboardData'
 import { useAppStore } from '../store'
 import { useTranslation } from '../lib/i18n'
-import { Trophy, Medal, TrendingUp, TrendingDown } from 'lucide-react'
+import { Trophy, Medal, TrendingUp, TrendingDown, Search, X } from 'lucide-react'
 
 export default function LeaderboardPage() {
   const { language } = useAppStore()
@@ -26,13 +27,62 @@ export default function LeaderboardPage() {
     )
   }
 
-  const rows = userStats ?? []
+  const [search, setSearch] = useState('')
+  const [limitN, setLimitN] = useState<number>(0) // 0 = show all
+
+  const allRows = userStats ?? []
+  const rows = useMemo(() => {
+    let result = allRows
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter((u) => u.name.toLowerCase().includes(q))
+    }
+    return limitN > 0 ? result.slice(0, limitN) : result
+  }, [allRows, search, limitN])
+
+  const es = language === 'es'
 
   return (
     <div className="space-y-5">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_leader_title')}</h1>
-        <p className="text-slate-500 text-sm mt-0.5">{t('page_leader_subtitle')}</p>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_leader_title')}</h1>
+          <p className="text-slate-500 text-sm mt-0.5">{t('page_leader_subtitle')}</p>
+        </div>
+        <div className="flex flex-wrap items-center gap-2">
+          {/* Search by advisor name */}
+          <div className="relative">
+            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500 pointer-events-none" />
+            <input
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder={es ? 'Buscar asesor...' : 'Search advisor...'}
+              className="bg-surface border border-line text-slate-300 text-xs rounded-lg pl-8 pr-8 py-1.5 focus:outline-none focus:border-accent w-48"
+            />
+            {search && (
+              <button onClick={() => setSearch('')} className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300">
+                <X className="w-3 h-3" />
+              </button>
+            )}
+          </div>
+          {/* Show top N */}
+          <select
+            value={limitN}
+            onChange={(e) => setLimitN(Number(e.target.value))}
+            className="bg-surface border border-line text-slate-300 text-xs rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent cursor-pointer"
+          >
+            <option value={0}>{es ? 'Todos' : 'All'}</option>
+            <option value={10}>{es ? 'Top 10' : 'Top 10'}</option>
+            <option value={25}>{es ? 'Top 25' : 'Top 25'}</option>
+            <option value={50}>{es ? 'Top 50' : 'Top 50'}</option>
+          </select>
+          {/* Active filter badge */}
+          {(search || limitN > 0) && (
+            <span className="text-[11px] text-accent bg-accent/10 border border-accent/20 px-2 py-0.5 rounded-full">
+              {rows.length} / {allRows.length} {es ? 'asesores' : 'advisors'}
+            </span>
+          )}
+        </div>
       </div>
 
       <div className="card overflow-hidden">

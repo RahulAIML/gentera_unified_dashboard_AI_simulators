@@ -31,6 +31,16 @@ export function parseScore(v: string | number | undefined | null): number {
   return isNaN(n) ? 0 : n
 }
 
+/**
+ * Parse a percentage field from the API and cap at 100.
+ * The rolplay.net backend pre-computes Porcentaje_Robin = (Puntos_Robin / Puntos_Maximos_Robin) × 100
+ * but the Robin AI can award more raw points than Puntos_Maximos_Robin, producing values like 111.
+ * We cap at 100 for all display purposes.
+ */
+function parsePct(v: string | number | undefined | null): number {
+  return Math.min(100, parseScore(v))
+}
+
 // MC field value: 1 / true / "1" = done; anything else (0, null, "No aplica") = not done
 function isMCDone(v: MCValue): boolean {
   return v === 1 || v === '1'
@@ -54,9 +64,11 @@ function numMCsDone(s: RpFactSession): number {
 // Roleplay dates: "DD/MM/YYYY HH:MM:SS" or "DD/MM/YYYY"
 export function parseRpDate(raw: string): Date | null {
   try {
+    if (!raw) return null
     const [datePart] = raw.split(' ')
     const [dd, mm, yyyy] = datePart.split('/')
-    return new Date(`${yyyy}-${mm}-${dd}`)
+    const d = new Date(`${yyyy}-${mm}-${dd}`)
+    return isNaN(d.getTime()) ? null : d
   } catch {
     return null
   }
@@ -120,10 +132,10 @@ export function computeRpKPIs(
   return {
     totalSessions: sessions.length,
     avgTotalScore: Math.round(avg(sessions.map((s) => parseScore(s.Puntos_Totales)))),
-    avgRobinPct:   Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Robin)))),
-    avgFacialPct:  Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Facial)))),
-    avgVoicePct:   Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Voz)))),
-    avgWpmPct:     Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))),
+    avgRobinPct:   Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Robin)))),
+    avgFacialPct:  Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Facial)))),
+    avgVoicePct:   Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Voz)))),
+    avgWpmPct:     Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))),
     avgCriteriaRate: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
     activeUsers:    new Set(sessions.map((s) => s.ID_Usuario)).size,
     activeBranches: new Set(sessions.map((s) => s.Administrador_Nombre)).size,
@@ -159,7 +171,7 @@ export function computeRpTrend(sessions: RpFactSession[]): RpTrendPoint[] {
       date,
       label: date.slice(5),
       avgScore: Math.round(avg(group.map((s) => parseScore(s.Puntos_Totales)))),
-      avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+      avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
       count: group.length,
     }))
     .sort((a, b) => a.date.localeCompare(b.date))
@@ -182,10 +194,10 @@ export function computeScoreDimensions(sessions: RpFactSession[], language: 'es'
     ? { robin: 'IA (Robin)', facial: 'Expresión Facial', voice: 'Voz', wpm: 'Palabras/Min' }
     : { robin: 'AI (Robin)', facial: 'Facial Expr.', voice: 'Voice', wpm: 'Words/Min' }
   return [
-    { dimension: 'robin',  label: labels.robin,  avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Robin)))),                  fullMark: 100 },
-    { dimension: 'facial', label: labels.facial, avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Facial)))),                 fullMark: 100 },
-    { dimension: 'voice',  label: labels.voice,  avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Voz)))),                    fullMark: 100 },
-    { dimension: 'wpm',    label: labels.wpm,    avg: Math.round(avg(sessions.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))), fullMark: 100 },
+    { dimension: 'robin',  label: labels.robin,  avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Robin)))),                  fullMark: 100 },
+    { dimension: 'facial', label: labels.facial, avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Facial)))),                 fullMark: 100 },
+    { dimension: 'voice',  label: labels.voice,  avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Voz)))),                    fullMark: 100 },
+    { dimension: 'wpm',    label: labels.wpm,    avg: Math.round(avg(sessions.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))), fullMark: 100 },
   ]
 }
 
@@ -229,7 +241,7 @@ export function computeRpActivityStats(
         name,
         count: group.length,
         avgScore: Math.round(avg(totals)),
-        avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+        avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
         avgCriteria: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
         avgAttempts: Math.round(avg(group.map((s) => s.Grabaciones_Totales ?? 0)) * 10) / 10,
         maxScore: Math.round(Math.max(...totals)),
@@ -291,7 +303,7 @@ export function computeRpUserStats(
         branch: group[0].Administrador_Nombre,
         count: group.length,
         avgScore: Math.round(avg(totals)),
-        avgRobin: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
+        avgRobin: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
         avgCriteria: criteriaRates.length ? Math.round(avg(criteriaRates)) : 0,
         bestScore: Math.round(Math.max(...totals)),
         avgAttempts: Math.round(avg(group.map((s) => s.Grabaciones_Totales ?? 0)) * 10) / 10,
@@ -329,10 +341,10 @@ export function computeRpBranchStats(sessions: RpFactSession[]): RpBranchStat[] 
       name,
       count: group.length,
       avgScore:  Math.round(avg(group.map((s) => parseScore(s.Puntos_Totales)))),
-      avgRobin:  Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Robin)))),
-      avgFacial: Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Facial)))),
-      avgVoice:  Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Voz)))),
-      avgWpm:    Math.round(avg(group.map((s) => parseScore(s.Porcentaje_Palabras_por_Minuto)))),
+      avgRobin:  Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Robin)))),
+      avgFacial: Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Facial)))),
+      avgVoice:  Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Voz)))),
+      avgWpm:    Math.round(avg(group.map((s) => parsePct(s.Porcentaje_Palabras_por_Minuto)))),
       activeUsers: new Set(group.map((s) => s.ID_Usuario)).size,
       activitiesRun: new Set(group.map((s) => s.Actividad_Rub_Nombre)).size,
     }))
@@ -362,12 +374,25 @@ export function computeRpSupervisorStats(
   superAdmin: SuperAdmin[],
   superActRub: SuperActRub[],
   sessions: RpFactSession[],
+  usuarios: RpUsuario[],
+  admins: import('../api/roleplayTypes').RpAdministrador[],
 ): RpSupervisorStat[] {
-  // supervisor → set of user keys
-  const supUserMap = new Map<number, Set<number>>()
-  superUser.forEach(({ Supervisor_Key, Usuario_Key }) => {
-    if (!supUserMap.has(Supervisor_Key)) supUserMap.set(Supervisor_Key, new Set())
-    supUserMap.get(Supervisor_Key)!.add(Usuario_Key)
+  // ── Build lookup indexes ────────────────────────────────────────────────
+
+  // Administrador_Key → Administrador_Nombre
+  const adminNameMap = new Map<number, string>()
+  admins.forEach((a) => adminNameMap.set(a.Administrador_Key, a.Administrador_Nombre))
+
+  // Usuario_Key → ID_Usuario  (the KEY mismatch: Super_User uses Usuario_Key,
+  //   sessions use ID_Usuario — these are different fields on RpUsuario)
+  const usuarioKeyToId = new Map<number, number>()
+  usuarios.forEach((u) => usuarioKeyToId.set(u.Usuario_Key, u.ID_Usuario))
+
+  // Administrador_Key → Set<ID_Usuario>  (users per branch)
+  const usersByBranch = new Map<number, Set<number>>()
+  usuarios.forEach((u) => {
+    if (!usersByBranch.has(u.Administrador_Key)) usersByBranch.set(u.Administrador_Key, new Set())
+    usersByBranch.get(u.Administrador_Key)!.add(u.ID_Usuario)
   })
 
   // supervisor → set of admin (branch) keys
@@ -375,6 +400,13 @@ export function computeRpSupervisorStats(
   superAdmin.forEach(({ Supervisor_Key, Administrador_Key }) => {
     if (!supAdminMap.has(Supervisor_Key)) supAdminMap.set(Supervisor_Key, new Set())
     supAdminMap.get(Supervisor_Key)!.add(Administrador_Key)
+  })
+
+  // supervisor → set of Usuario_Key (for user count display)
+  const supUserMap = new Map<number, Set<number>>()
+  superUser.forEach(({ Supervisor_Key, Usuario_Key }) => {
+    if (!supUserMap.has(Supervisor_Key)) supUserMap.set(Supervisor_Key, new Set())
+    supUserMap.get(Supervisor_Key)!.add(Usuario_Key)
   })
 
   // supervisor → activity keys
@@ -385,34 +417,60 @@ export function computeRpSupervisorStats(
   })
 
   // sessions indexed by ID_Usuario
-  const sessionsByUser = new Map<number, RpFactSession[]>()
+  const sessionsByUserId = new Map<number, RpFactSession[]>()
   sessions.forEach((s) => {
-    if (!sessionsByUser.has(s.ID_Usuario)) sessionsByUser.set(s.ID_Usuario, [])
-    sessionsByUser.get(s.ID_Usuario)!.push(s)
+    if (!sessionsByUserId.has(s.ID_Usuario)) sessionsByUserId.set(s.ID_Usuario, [])
+    sessionsByUserId.get(s.ID_Usuario)!.push(s)
   })
 
   return supervisores.map((sup) => {
-    const userKeys = supUserMap.get(sup.Supervisor_Key) ?? new Set<number>()
-    const supervised: RpFactSession[] = []
-    userKeys.forEach((uk) => {
-      // Usuario_Key === ID_Usuario per API schema
-      const userSessions = sessionsByUser.get(uk) ?? []
-      supervised.push(...userSessions)
+    const branchKeys = supAdminMap.get(sup.Supervisor_Key) ?? new Set<number>()
+
+    // ── Strategy 1: scope via branches → users (most reliable) ──────────
+    // For each branch this supervisor manages, collect all users, then sessions
+    const scopedUserIds = new Set<number>()
+    branchKeys.forEach((bk) => {
+      const branchUsers = usersByBranch.get(bk) ?? new Set<number>()
+      branchUsers.forEach((uid) => scopedUserIds.add(uid))
     })
+
+    let supervised: RpFactSession[] = []
+    scopedUserIds.forEach((uid) => {
+      const s = sessionsByUserId.get(uid) ?? []
+      supervised.push(...s)
+    })
+
+    // ── Strategy 2 (fallback): scope via Super_User, translating Usuario_Key → ID_Usuario
+    if (supervised.length === 0) {
+      const usuarioKeys = supUserMap.get(sup.Supervisor_Key) ?? new Set<number>()
+      usuarioKeys.forEach((uk) => {
+        const idUsuario = usuarioKeyToId.get(uk)
+        if (idUsuario !== undefined) {
+          const s = sessionsByUserId.get(idUsuario) ?? []
+          supervised.push(...s)
+        }
+      })
+    }
+
+    // User count: prefer branch-scoped count; fall back to Super_User bridge count
+    const userCount = scopedUserIds.size > 0
+      ? scopedUserIds.size
+      : (supUserMap.get(sup.Supervisor_Key)?.size ?? 0)
+
     const branchSet = new Set(supervised.map((s) => s.Administrador_Nombre))
 
     return {
       supervisorKey: sup.Supervisor_Key,
-      name:  sup['Supervisor Nombre'],
-      email: sup['Supervisor Email'],
-      userCount:    userKeys.size,
-      adminCount:   (supAdminMap.get(sup.Supervisor_Key) ?? new Set()).size,
-      sessionCount: supervised.length,
+      name:          sup['Supervisor Nombre'],
+      email:         sup['Supervisor Email'],
+      userCount,
+      adminCount:    branchKeys.size,
+      sessionCount:  supervised.length,
       avgScore: supervised.length
         ? Math.round(avg(supervised.map((s) => parseScore(s.Puntos_Totales))))
         : 0,
       avgRobin: supervised.length
-        ? Math.round(avg(supervised.map((s) => parseScore(s.Porcentaje_Robin))))
+        ? Math.round(avg(supervised.map((s) => parsePct(s.Porcentaje_Robin))))
         : 0,
       activeBranches: branchSet.size,
       activityKeys: supActMap.get(sup.Supervisor_Key) ?? [],

@@ -23,7 +23,7 @@ function CustomTooltip({ active, payload, language, c }: CustomTooltipProps) {
   const d = payload[0]
   return (
     <TooltipShell minWidth={144} c={c}>
-      <TTitle text={`${language === 'es' ? 'Ronda' : 'Round'} ${d.payload.round}`} c={c} />
+      <TTitle text={`${language === 'es' ? 'Interacción' : 'Interaction'} ${d.payload.round}`} c={c} />
       <TRow label={language === 'es' ? 'Promedio' : 'Average'}
             value={d.value.toFixed(2)}
             valueStyle={{ color: c.accent }}

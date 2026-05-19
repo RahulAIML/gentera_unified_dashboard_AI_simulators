@@ -12,8 +12,9 @@ import {
 } from 'recharts'
 import { TooltipShell, TRow, TTitle, useTooltipColors } from '../components/charts/TooltipShell'
 import { useChartColors } from '../lib/chartTheme'
-import { UserCircle2, Building2, Users, TrendingUp, RefreshCw, Activity, Brain } from 'lucide-react'
+import { UserCircle2, Building2, Users, TrendingUp, RefreshCw, Activity, Brain, Download } from 'lucide-react'
 import { cn } from '../lib/cn'
+import { downloadCSV, csvDate } from '../lib/csvExport'
 
 function BranchTooltip({ active, payload, language, c }: any) {
   if (!active || !payload?.length) return null
@@ -35,12 +36,12 @@ export default function SupervisorsPage() {
   const c = useChartColors()
   const tt = useTooltipColors()
 
-  const { supervisores, usuarios, superUser, superAdmin, superActRub, sessions, isLoading, isError, refetch } =
+  const { supervisores, usuarios, admins, superUser, superAdmin, superActRub, sessions, isLoading, isError, refetch } =
     useRoleplayData()
 
   const supervisorStats = useMemo(
-    () => computeRpSupervisorStats(supervisores, superUser, superAdmin, superActRub, sessions),
-    [supervisores, superUser, superAdmin, superActRub, sessions],
+    () => computeRpSupervisorStats(supervisores, superUser, superAdmin, superActRub, sessions, usuarios, admins),
+    [supervisores, superUser, superAdmin, superActRub, sessions, usuarios, admins],
   )
 
   const branchStats = useMemo(() => computeRpBranchStats(sessions), [sessions])
@@ -73,15 +74,43 @@ export default function SupervisorsPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-wrap items-center justify-between gap-2">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_supervisors_title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_supervisors_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_supervisors_subtitle')}</p>
         </div>
-        <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
-          <RefreshCw className="w-3.5 h-3.5" />
-          {t('retry')}
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => {
+              const rows: (string | number)[][] = [
+                [es ? 'Sucursal' : 'Branch', es ? 'Sesiones' : 'Sessions', es ? 'Usuarios' : 'Users', es ? 'Puntaje' : 'Score', 'Robin %', 'Facial %', es ? 'Voz %' : 'Voice %'],
+                ...branchStats.map(b => [b.name, b.count, b.activeUsers, b.avgScore, b.avgRobin, b.avgFacial, b.avgVoice]),
+              ]
+              downloadCSV(rows, `branches_${csvDate()}.csv`)
+            }}
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2.5 py-1.5 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {es ? 'Sucursales CSV' : 'Branches CSV'}
+          </button>
+          <button
+            onClick={() => {
+              const rows: (string | number)[][] = [
+                [es ? 'Supervisor' : 'Supervisor', 'Email', es ? 'Usuarios' : 'Users', es ? 'Sesiones' : 'Sessions', es ? 'Sucursales' : 'Branches', es ? 'Puntaje' : 'Score', 'Robin %'],
+                ...supervisorStats.map(s => [s.name, s.email, s.userCount, s.sessionCount, s.activeBranches, s.avgScore, s.avgRobin]),
+              ]
+              downloadCSV(rows, `supervisors_${csvDate()}.csv`)
+            }}
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2.5 py-1.5 transition-colors"
+          >
+            <Download className="w-3.5 h-3.5" />
+            {es ? 'Supervisores CSV' : 'Supervisors CSV'}
+          </button>
+          <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
+            <RefreshCw className="w-3.5 h-3.5" />
+            {t('retry')}
+          </button>
+        </div>
       </div>
 
       {/* Summary strip */}

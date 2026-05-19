@@ -8,10 +8,11 @@ yarn-error.log*
 dist/
 build/
 
-# Environment variables — block ALL .env files, no exceptions
+# Environment variables — block secret files, allow example template
 .env
 .env.*
 *.env
+!.env.example
 
 # IDE files
 .vscode/

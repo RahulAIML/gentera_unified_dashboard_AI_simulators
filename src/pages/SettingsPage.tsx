@@ -11,7 +11,7 @@ export default function SettingsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_settings_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_settings_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_settings_subtitle')}</p>
       </div>
 
@@ -79,11 +79,11 @@ export default function SettingsPage() {
         </h2>
         <div className="space-y-3">
           {[
-            { label: es ? 'Nombre' : 'Name', value: 'Gentera AI Training Intelligence' },
+            { label: es ? 'Nombre' : 'Name', value: es ? 'Gentera Inteligencia de Entrenamiento IA' : 'Gentera AI Training Intelligence' },
             { label: es ? 'Versión' : 'Version', value: '2.0.0' },
             { label: es ? 'Motor Simulador' : 'Simulator Engine', value: 'serv.aux-rolplay.com' },
-            { label: es ? 'Motor Roleplay' : 'Roleplay Engine', value: 'rolplay.net' },
-            { label: es ? 'Asistente IA' : 'AI Assistant', value: 'Gemini 2.5 Flash' },
+            { label: es ? 'Motor Rolplay' : 'Rolplay Engine', value: 'rolplay.net' },
+            { label: es ? 'Asistente IA' : 'AI Assistant', value: 'Gemini 2.0 Flash' },
           ].map((row) => (
             <div key={row.label} className="flex items-center justify-between text-sm border-b border-line/20 pb-2 last:border-0 last:pb-0">
               <span className="text-slate-500">{row.label}</span>
