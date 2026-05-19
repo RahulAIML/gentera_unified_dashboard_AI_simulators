@@ -4,32 +4,6 @@ import { useDashboardData } from '../hooks/useDashboardData'
 import { useFactRolPlayRub } from '../api/roleplayQueries'
 import { FileDown, BarChart3, Mic2, Users, Activity } from 'lucide-react'
 
-function ReportCard({
-  icon: Icon,
-  title,
-  description,
-  tag,
-}: {
-  icon: React.ComponentType<{ className?: string }>
-  title: string
-  description: string
-  tag: string
-}) {
-  return (
-    <div className="card p-5 flex items-start gap-4 hover:border-accent/30 transition-colors">
-      <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center shrink-0">
-        <Icon className="w-5 h-5 text-accent" />
-      </div>
-      <div className="flex-1 min-w-0">
-        <div className="flex items-center justify-between gap-3 mb-1">
-          <p className="text-sm font-semibold text-slate-200">{title}</p>
-          <span className="text-[10px] font-medium px-2 py-0.5 rounded-full bg-slate-700 text-slate-400 whitespace-nowrap shrink-0">{tag}</span>
-        </div>
-        <p className="text-xs text-slate-500">{description}</p>
-      </div>
-    </div>
-  )
-}
 
 export default function ReportsPage() {
   const { language } = useAppStore()
@@ -88,7 +62,7 @@ export default function ReportsPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_reports_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_reports_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_reports_subtitle')}</p>
       </div>
 
@@ -158,38 +132,6 @@ export default function ReportsPage() {
         </div>
       </div>
 
-      {/* Report templates (visual only) */}
-      <div>
-        <h2 className="text-xs font-semibold uppercase tracking-widest text-slate-600 mb-3">
-          {es ? 'Plantillas de Reporte' : 'Report Templates'}
-        </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <ReportCard
-            icon={BarChart3}
-            title={es ? 'Reporte Ejecutivo Semanal' : 'Weekly Executive Report'}
-            description={es ? 'KPIs, tendencias y top performers del período.' : 'KPIs, trends, and top performers for the period.'}
-            tag={es ? 'Próximamente' : 'Coming soon'}
-          />
-          <ReportCard
-            icon={Mic2}
-            title={es ? 'Análisis de Rolplay por Actividad' : 'Rolplay Analysis by Activity'}
-            description={es ? 'Desglose de puntajes IA por actividad y criterios MC.' : 'AI score breakdown by activity and MC criteria.'}
-            tag={es ? 'Próximamente' : 'Coming soon'}
-          />
-          <ReportCard
-            icon={Users}
-            title={es ? 'Rendimiento por Sucursal' : 'Branch Performance Report'}
-            description={es ? 'Comparativa de sucursales, supervisores y asesores.' : 'Branch, supervisor, and advisor comparison.'}
-            tag={es ? 'Próximamente' : 'Coming soon'}
-          />
-          <ReportCard
-            icon={Activity}
-            title={es ? 'Progresión de Asesores' : 'Advisor Progression'}
-            description={es ? 'Evolución individual de puntajes en el tiempo.' : 'Individual score evolution over time.'}
-            tag={es ? 'Próximamente' : 'Coming soon'}
-          />
-        </div>
-      </div>
     </div>
   )
 }

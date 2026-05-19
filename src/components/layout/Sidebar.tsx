@@ -1,4 +1,3 @@
-import gentaraLogo from '../../assets/gentera_logo.webp'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
   LayoutDashboard, PlayCircle, MessageSquare, Brain, Trophy,
@@ -152,7 +151,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-line/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <img src={gentaraLogo} alt="Gentera" className="w-10 h-10 shrink-0 object-contain" />
+            <img src="/gentera-logo.svg" alt="Gentera" className="w-10 h-10 shrink-0" />
             <AnimatePresence>
               {!sidebarCollapsed && (
                 <motion.div
@@ -200,7 +199,7 @@ export function Sidebar() {
             {/* Logo + close */}
             <div className="flex items-center justify-between h-16 px-4 border-b border-line/30 shrink-0">
               <div className="flex items-center gap-3">
-                <img src={gentaraLogo} alt="Gentera" className="w-9 h-9 shrink-0 object-contain" />
+                <img src="/gentera-logo.svg" alt="Gentera" className="w-9 h-9 shrink-0" />
                 <div className="flex flex-col">
                   <span className="text-slate-100 font-semibold text-sm leading-tight">Gentera</span>
                   <span className="text-slate-600 text-[10px] leading-tight">{t('sidebar_tagline')}</span>

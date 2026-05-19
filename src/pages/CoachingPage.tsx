@@ -36,7 +36,7 @@ export default function CoachingPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_coaching_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_coaching_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_coaching_subtitle')}</p>
       </div>
 
