@@ -19,7 +19,7 @@ import { TooltipShell, TRow, TTitle, TDivider, useTooltipColors } from '../compo
 import { useChartColors } from '../lib/chartTheme'
 import {
   Brain, Mic, Eye, Zap, Users, Building2, ChevronDown,
-  RefreshCw, TrendingUp, Clock, PlayCircle, Download, CheckCircle2,
+  RefreshCw, TrendingUp, Clock, PlayCircle, Download, CheckCircle2, ExternalLink,
 } from 'lucide-react'
 import { cn } from '../lib/cn'
 
@@ -463,6 +463,84 @@ export default function RoleplayPage() {
                   <td className="py-2 text-slate-500 text-xs">{u.avgAttempts}</td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Session Records — with Enlace link */}
+      <div className="card p-5">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h3 className="text-sm font-semibold text-slate-200">
+              {es ? 'Registros de Sesiones' : 'Session Records'}
+            </h3>
+            <p className="text-[11px] text-slate-600 mt-0.5">
+              {es ? 'Accede a los resultados de cada sesión individual' : 'Access results for each individual session'}
+            </p>
+          </div>
+          <span className="text-[11px] text-slate-600">
+            {sessions.length} {es ? 'sesiones' : 'sessions'}
+          </span>
+        </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left border-b border-line/30">
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Fecha' : 'Date'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Usuario' : 'User'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Sucursal' : 'Branch'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Actividad' : 'Activity'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">{es ? 'Puntaje' : 'Score'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">Robin %</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">{es ? 'Intentos' : 'Attempts'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 text-center">{es ? 'Resultado' : 'Result'}</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-line/20">
+              {sessions.slice().sort((a, b) => b.ID_Ejercicio_Rub - a.ID_Ejercicio_Rub).map((s) => {
+                const scoreNum = parseFloat(String(s.Puntos_Totales)) || 0
+                const robinNum = Math.min(100, parseFloat(String(s.Porcentaje_Robin)) || 0)
+                const hasLink  = s.Enlace_con_Resultados && s.Enlace_con_Resultados.startsWith('http')
+                return (
+                  <tr key={s.ID_Ejercicio_Rub} className="hover:bg-white/[0.015] transition-colors">
+                    <td className="py-2 pr-3 text-slate-500 text-xs whitespace-nowrap">{s.Fecha}</td>
+                    <td className="py-2 pr-3 text-slate-200 font-medium text-xs truncate max-w-[140px]">{s.Usuario_Nombre}</td>
+                    <td className="py-2 pr-3 text-slate-500 text-xs truncate max-w-[120px]">{s.Administrador_Nombre}</td>
+                    <td className="py-2 pr-3 text-slate-500 text-xs truncate max-w-[160px]">{s.Actividad_Rub_Nombre}</td>
+                    <td className="py-2 pr-3 text-right">
+                      <span className={cn(
+                        'text-xs font-semibold tabular-nums',
+                        scoreNum >= 70 ? 'text-success' : scoreNum >= 50 ? 'text-accent' : 'text-danger',
+                      )}>
+                        {scoreNum}
+                      </span>
+                    </td>
+                    <td className="py-2 pr-3 text-right">
+                      <span className="text-xs text-violet tabular-nums">{robinNum}%</span>
+                    </td>
+                    <td className="py-2 pr-3 text-right text-slate-500 text-xs tabular-nums">
+                      {s.Grabaciones_Totales ?? '—'}
+                    </td>
+                    <td className="py-2 text-center">
+                      {hasLink ? (
+                        <a
+                          href={s.Enlace_con_Resultados}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="inline-flex items-center justify-center w-6 h-6 rounded-md bg-accent/10 hover:bg-accent/20 text-accent transition-colors"
+                          title={es ? 'Ver resultado' : 'View result'}
+                        >
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      ) : (
+                        <span className="text-slate-700 text-xs">—</span>
+                      )}
+                    </td>
+                  </tr>
+                )
+              })}
             </tbody>
           </table>
         </div>

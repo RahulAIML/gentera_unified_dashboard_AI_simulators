@@ -117,11 +117,13 @@ export default function SimulationsPage() {
                         <td colSpan={6} className="px-4 py-4">
                           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             {[1, 2, 3, 4, 5, 6].map((r) => {
-                              const q = s[`Pregunta_${r}` as keyof typeof s] as string | null
+                              const q    = s[`Pregunta_${r}` as keyof typeof s] as string | null
                               const resp = s[`Respuesta_${r}` as keyof typeof s] as string | null
-                              const pts = s[`Puntos_${r}` as keyof typeof s] as number | null
-                              const fb = s[`Retroalimentacion_${r}` as keyof typeof s] as string | null
-                              if (!q) return null
+                              const pts  = s[`Puntos_${r}` as keyof typeof s] as number | string | null
+                              const fb   = s[`Retroalimentacion_${r}` as keyof typeof s] as string | null
+                              // Only show if there is a question AND Puntos is a real number
+                              // Puntos_6 is "No aplica" across all current simulators — skip it
+                              if (!q || typeof pts !== 'number') return null
                               return (
                                 <div key={r} className="card p-3 border border-line/40">
                                   <div className="flex items-center justify-between mb-1.5">
