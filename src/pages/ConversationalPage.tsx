@@ -219,7 +219,7 @@ export default function ConversationalPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_conv_title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_conv_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_conv_subtitle')}</p>
         </div>
         <div className="card p-10 flex flex-col items-center gap-3">
@@ -254,7 +254,7 @@ export default function ConversationalPage() {
     <div className="space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_conv_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_conv_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_conv_subtitle')}</p>
       </div>
 

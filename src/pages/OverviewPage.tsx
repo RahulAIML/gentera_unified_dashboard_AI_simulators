@@ -240,7 +240,7 @@ export default function OverviewPage() {
       {/* Header + date range + exports */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_overview_title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_overview_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_overview_subtitle')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -355,8 +355,8 @@ export default function OverviewPage() {
       )}
 
       {/* Charts */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-        <div className="card p-5 lg:col-span-2">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="card p-5 sm:col-span-2 lg:col-span-2">
           <div className="flex items-center justify-between mb-4">
             <h3 className="text-sm font-semibold text-slate-200">{t('score_trend')}</h3>
             {dateActive && (

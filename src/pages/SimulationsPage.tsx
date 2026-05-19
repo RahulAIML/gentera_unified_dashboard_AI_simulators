@@ -44,11 +44,11 @@ export default function SimulationsPage() {
   return (
     <div className="space-y-5">
       <div>
-        <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_sims_title')}</h1>
+        <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_sims_title')}</h1>
         <p className="text-slate-500 text-sm mt-0.5">{t('page_sims_subtitle')}</p>
       </div>
 
-      <div className="flex items-center gap-3">
+      <div className="flex flex-wrap items-center gap-3">
         <div className="relative flex-1 max-w-md">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-600" />
           <input
@@ -115,7 +115,7 @@ export default function SimulationsPage() {
                     {expanded && (
                       <tr className="bg-surface/50">
                         <td colSpan={6} className="px-4 py-4">
-                          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                             {[1, 2, 3, 4, 5, 6].map((r) => {
                               const q    = s[`Pregunta_${r}` as keyof typeof s] as string | null
                               const resp = s[`Respuesta_${r}` as keyof typeof s] as string | null

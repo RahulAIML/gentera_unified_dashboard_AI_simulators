@@ -11,6 +11,7 @@ interface AppState {
   selectedActivityId: number | null
   dateFrom: string | null
   dateTo: string | null
+  mobileMenuOpen: boolean
 
   setLanguage: (lang: Language) => void
   toggleTheme: () => void
@@ -21,6 +22,8 @@ interface AppState {
   setActivityFilter: (id: number | null) => void
   setDateRange: (from: string | null, to: string | null) => void
   clearFilters: () => void
+  toggleMobileMenu: () => void
+  setMobileMenuOpen: (v: boolean) => void
 }
 
 export const useAppStore = create<AppState>((set) => ({
@@ -31,6 +34,7 @@ export const useAppStore = create<AppState>((set) => ({
   selectedActivityId: null,
   dateFrom: null,
   dateTo: null,
+  mobileMenuOpen: false,
 
   setLanguage: (lang) => set({ language: lang }),
   toggleTheme: () => set((s) => ({ theme: s.theme === 'light' ? 'dark' : 'light' })),
@@ -41,4 +45,6 @@ export const useAppStore = create<AppState>((set) => ({
   setActivityFilter: (id) => set({ selectedActivityId: id }),
   setDateRange: (from, to) => set({ dateFrom: from, dateTo: to }),
   clearFilters: () => set({ selectedActivityId: null, dateFrom: null, dateTo: null }),
+  toggleMobileMenu: () => set((s) => ({ mobileMenuOpen: !s.mobileMenuOpen })),
+  setMobileMenuOpen: (v) => set({ mobileMenuOpen: v }),
 }))

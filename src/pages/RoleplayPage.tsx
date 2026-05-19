@@ -206,7 +206,7 @@ export default function RoleplayPage() {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_roleplay_title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_roleplay_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_roleplay_subtitle')}</p>
         </div>
         <div className="card p-10 flex flex-col items-center gap-3">
@@ -222,7 +222,7 @@ export default function RoleplayPage() {
       {/* Header */}
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-slate-50 tracking-tight">{t('page_roleplay_title')}</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-slate-50 tracking-tight">{t('page_roleplay_title')}</h1>
           <p className="text-slate-500 text-sm mt-0.5">{t('page_roleplay_subtitle')}</p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
