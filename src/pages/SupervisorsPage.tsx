@@ -88,10 +88,11 @@ export default function SupervisorsPage() {
               ]
               downloadCSV(rows, `branches_${csvDate()}.csv`)
             }}
-            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2.5 py-1.5 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2 sm:px-2.5 py-1.5 transition-colors"
+            title={es ? 'Sucursales CSV' : 'Branches CSV'}
           >
             <Download className="w-3.5 h-3.5" />
-            {es ? 'Sucursales CSV' : 'Branches CSV'}
+            <span className="hidden sm:inline">{es ? 'Sucursales CSV' : 'Branches CSV'}</span>
           </button>
           <button
             onClick={() => {
@@ -101,14 +102,14 @@ export default function SupervisorsPage() {
               ]
               downloadCSV(rows, `supervisors_${csvDate()}.csv`)
             }}
-            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2.5 py-1.5 transition-colors"
+            className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 border border-line/40 hover:border-line rounded-lg px-2 sm:px-2.5 py-1.5 transition-colors"
+            title={es ? 'Supervisores CSV' : 'Supervisors CSV'}
           >
             <Download className="w-3.5 h-3.5" />
-            {es ? 'Supervisores CSV' : 'Supervisors CSV'}
+            <span className="hidden sm:inline">{es ? 'Supervisores CSV' : 'Supervisors CSV'}</span>
           </button>
-          <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
+          <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors" title={t('retry')}>
             <RefreshCw className="w-3.5 h-3.5" />
-            {t('retry')}
           </button>
         </div>
       </div>
@@ -121,11 +122,11 @@ export default function SupervisorsPage() {
           { icon: Users,       label: es ? 'Sesiones Totales' : 'Total Sessions', value: sessions.length.toLocaleString(), color: 'text-success bg-success/10' },
           { icon: Brain,       label: es ? 'Robin Prom.' : 'Avg. Robin', value: `${branchStats.length ? Math.round(branchStats.reduce((s, b) => s + b.avgRobin, 0) / branchStats.length) : 0}%`, color: 'text-indigo bg-indigo/10' },
         ].map((item) => (
-          <div key={item.label} className="card p-5">
+          <div key={item.label} className="card p-4 sm:p-5">
             <div className="flex items-start justify-between">
-              <div>
-                <p className="text-xs text-slate-500 font-medium mb-1">{item.label}</p>
-                <p className="metric-value">{item.value}</p>
+              <div className="min-w-0 flex-1">
+                <p className="text-xs text-slate-500 font-medium mb-1 truncate">{item.label}</p>
+                <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-base)' }}>{item.value}</p>
               </div>
               <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0', item.color)}>
                 <item.icon className="w-4 h-4" />

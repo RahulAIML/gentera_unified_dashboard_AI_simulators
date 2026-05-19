@@ -265,7 +265,7 @@ export default function OverviewPage() {
               <ChevronDown className="w-3 h-3 opacity-60" />
             </button>
             {showUserDropdown && (
-              <div className="absolute top-full mt-1 right-0 z-30 w-64 bg-surface border border-line rounded-xl shadow-elevated overflow-hidden">
+              <div className="absolute top-full mt-1 right-0 z-30 w-56 sm:w-64 bg-surface border border-line rounded-xl shadow-elevated overflow-hidden">
                 <div className="p-2 border-b border-line/30">
                   <div className="relative">
                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-3 h-3 text-slate-500" />
@@ -310,18 +310,20 @@ export default function OverviewPage() {
           </div>
           <button
             onClick={exportSimCSV}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all"
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-2 sm:px-3 py-1.5 transition-all"
+            title="Simulator CSV"
           >
             <Download className="w-3.5 h-3.5" />
-            {es ? 'Sim. CSV' : 'Sim. CSV'}
+            <span className="hidden sm:inline">{es ? 'Sim. CSV' : 'Sim. CSV'}</span>
           </button>
           <button
             onClick={exportRpCSV}
             disabled={!(rpFact.data?.length)}
-            className="flex items-center gap-1.5 text-xs text-violet hover:text-violet/80 border border-violet/30 hover:border-violet/50 rounded-lg px-3 py-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            className="flex items-center gap-1.5 text-xs text-violet hover:text-violet/80 border border-violet/30 hover:border-violet/50 rounded-lg px-2 sm:px-3 py-1.5 transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+            title="Roleplay CSV"
           >
             <Download className="w-3.5 h-3.5" />
-            {es ? 'RP CSV' : 'RP CSV'}
+            <span className="hidden sm:inline">{es ? 'RP CSV' : 'RP CSV'}</span>
           </button>
         </div>
       </div>
@@ -415,7 +417,7 @@ export default function OverviewPage() {
               <BarChart data={topActivities} layout="vertical" margin={{ top: 0, right: 20, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" domain={[0, 'dataMax + 5']} hide />
-                <YAxis dataKey="name" type="category" width={180} tick={{ fontSize: 11 }} />
+                <YAxis dataKey="name" type="category" width={130} tick={{ fontSize: 10 }} tickFormatter={(v: string) => v.length > 18 ? v.slice(0, 18) + '…' : v} />
                 <Tooltip content={<ActivityTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
                 <Bar dataKey="count" fill={COLORS.accent} radius={[0, 4, 4, 0]} barSize={20} />
               </BarChart>
@@ -481,14 +483,14 @@ function KpiCard({
     pass:   'text-success bg-success/10', indigo: 'text-indigo bg-indigo/10',
   }
   return (
-    <div className="card p-5">
+    <div className="card p-4 sm:p-5">
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-slate-500 font-medium mb-1">{label}</p>
-          <p className="metric-value">{value}</p>
-          <p className="text-[11px] text-slate-600 mt-1">{sub}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-slate-500 font-medium mb-1 truncate">{label}</p>
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-base)' }}>{value}</p>
+          <p className="text-[11px] text-slate-600 mt-1 truncate">{sub}</p>
         </div>
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${colorMap[color]}`}>
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-2 ${colorMap[color]}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
