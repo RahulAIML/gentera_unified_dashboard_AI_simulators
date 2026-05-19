@@ -23,14 +23,14 @@ export function DateRangeFilter({ from, to, onFrom, onTo, label, className }: Pr
         type="date"
         value={from}
         onChange={(e) => onFrom(e.target.value)}
-        className="bg-surface border border-line text-slate-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-accent cursor-pointer"
+        className="bg-surface border border-line text-slate-300 text-xs rounded-lg px-1.5 sm:px-2.5 py-1.5 focus:outline-none focus:border-accent cursor-pointer min-w-0 w-[120px] sm:w-auto"
       />
       <span className="text-xs text-slate-600">—</span>
       <input
         type="date"
         value={to}
         onChange={(e) => onTo(e.target.value)}
-        className="bg-surface border border-line text-slate-300 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:border-accent cursor-pointer"
+        className="bg-surface border border-line text-slate-300 text-xs rounded-lg px-1.5 sm:px-2.5 py-1.5 focus:outline-none focus:border-accent cursor-pointer min-w-0 w-[120px] sm:w-auto"
       />
     </div>
   )

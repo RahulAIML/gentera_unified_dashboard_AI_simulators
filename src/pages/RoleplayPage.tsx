@@ -61,8 +61,8 @@ function RpKpiCard({ icon: Icon, label, value, sub, color }: {
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-slate-500 font-medium mb-1 truncate">{label}</p>
-          <p className="metric-value">{value}</p>
-          {sub && <p className="text-[11px] text-slate-600 mt-1">{sub}</p>}
+          <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-base)' }}>{value}</p>
+          {sub && <p className="text-[11px] text-slate-600 mt-1 truncate">{sub}</p>}
         </div>
         <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3', colorMap[color])}>
           <Icon className="w-4 h-4" />
@@ -228,16 +228,19 @@ export default function RoleplayPage() {
         <div className="flex flex-wrap items-center gap-2">
           <DateRangeFilter from={from} to={to} onFrom={setFrom} onTo={setTo} label={es ? 'Período' : 'Period'} />
           <button onClick={exportSessionsCSV} disabled={!sessions.length}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
-            <Download className="w-3.5 h-3.5" />{es ? 'Sesiones' : 'Sessions'}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-2 sm:px-3 py-1.5 transition-all disabled:opacity-40"
+            title={es ? 'Sesiones CSV' : 'Sessions CSV'}>
+            <Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">{es ? 'Sesiones' : 'Sessions'}</span>
           </button>
           <button onClick={exportActivityCSV} disabled={!actStats.length}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
-            <Download className="w-3.5 h-3.5" />{es ? 'Actividades' : 'Activities'}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-2 sm:px-3 py-1.5 transition-all disabled:opacity-40"
+            title={es ? 'Actividades CSV' : 'Activities CSV'}>
+            <Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">{es ? 'Actividades' : 'Activities'}</span>
           </button>
           <button onClick={exportUsersCSV} disabled={!userStats.length}
-            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-3 py-1.5 transition-all disabled:opacity-40">
-            <Download className="w-3.5 h-3.5" />{es ? 'Usuarios' : 'Users'}
+            className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-200 border border-line/50 hover:border-line rounded-lg px-2 sm:px-3 py-1.5 transition-all disabled:opacity-40"
+            title={es ? 'Usuarios CSV' : 'Users CSV'}>
+            <Download className="w-3.5 h-3.5" /><span className="hidden sm:inline">{es ? 'Usuarios' : 'Users'}</span>
           </button>
           <button onClick={refetch} className="flex items-center gap-1.5 text-xs text-slate-500 hover:text-slate-200 transition-colors">
             <RefreshCw className="w-3.5 h-3.5" />
