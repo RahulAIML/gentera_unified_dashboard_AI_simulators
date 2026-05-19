@@ -36,12 +36,12 @@ export default function SupervisorsPage() {
   const c = useChartColors()
   const tt = useTooltipColors()
 
-  const { supervisores, usuarios, superUser, superAdmin, superActRub, sessions, isLoading, isError, refetch } =
+  const { supervisores, usuarios, admins, superUser, superAdmin, superActRub, sessions, isLoading, isError, refetch } =
     useRoleplayData()
 
   const supervisorStats = useMemo(
-    () => computeRpSupervisorStats(supervisores, superUser, superAdmin, superActRub, sessions),
-    [supervisores, superUser, superAdmin, superActRub, sessions],
+    () => computeRpSupervisorStats(supervisores, superUser, superAdmin, superActRub, sessions, usuarios, admins),
+    [supervisores, superUser, superAdmin, superActRub, sessions, usuarios, admins],
   )
 
   const branchStats = useMemo(() => computeRpBranchStats(sessions), [sessions])

@@ -374,12 +374,25 @@ export function computeRpSupervisorStats(
   superAdmin: SuperAdmin[],
   superActRub: SuperActRub[],
   sessions: RpFactSession[],
+  usuarios: RpUsuario[],
+  admins: import('../api/roleplayTypes').RpAdministrador[],
 ): RpSupervisorStat[] {
-  // supervisor → set of user keys
-  const supUserMap = new Map<number, Set<number>>()
-  superUser.forEach(({ Supervisor_Key, Usuario_Key }) => {
-    if (!supUserMap.has(Supervisor_Key)) supUserMap.set(Supervisor_Key, new Set())
-    supUserMap.get(Supervisor_Key)!.add(Usuario_Key)
+  // ── Build lookup indexes ────────────────────────────────────────────────
+
+  // Administrador_Key → Administrador_Nombre
+  const adminNameMap = new Map<number, string>()
+  admins.forEach((a) => adminNameMap.set(a.Administrador_Key, a.Administrador_Nombre))
+
+  // Usuario_Key → ID_Usuario  (the KEY mismatch: Super_User uses Usuario_Key,
+  //   sessions use ID_Usuario — these are different fields on RpUsuario)
+  const usuarioKeyToId = new Map<number, number>()
+  usuarios.forEach((u) => usuarioKeyToId.set(u.Usuario_Key, u.ID_Usuario))
+
+  // Administrador_Key → Set<ID_Usuario>  (users per branch)
+  const usersByBranch = new Map<number, Set<number>>()
+  usuarios.forEach((u) => {
+    if (!usersByBranch.has(u.Administrador_Key)) usersByBranch.set(u.Administrador_Key, new Set())
+    usersByBranch.get(u.Administrador_Key)!.add(u.ID_Usuario)
   })
 
   // supervisor → set of admin (branch) keys
@@ -387,6 +400,13 @@ export function computeRpSupervisorStats(
   superAdmin.forEach(({ Supervisor_Key, Administrador_Key }) => {
     if (!supAdminMap.has(Supervisor_Key)) supAdminMap.set(Supervisor_Key, new Set())
     supAdminMap.get(Supervisor_Key)!.add(Administrador_Key)
+  })
+
+  // supervisor → set of Usuario_Key (for user count display)
+  const supUserMap = new Map<number, Set<number>>()
+  superUser.forEach(({ Supervisor_Key, Usuario_Key }) => {
+    if (!supUserMap.has(Supervisor_Key)) supUserMap.set(Supervisor_Key, new Set())
+    supUserMap.get(Supervisor_Key)!.add(Usuario_Key)
   })
 
   // supervisor → activity keys
@@ -397,29 +417,55 @@ export function computeRpSupervisorStats(
   })
 
   // sessions indexed by ID_Usuario
-  const sessionsByUser = new Map<number, RpFactSession[]>()
+  const sessionsByUserId = new Map<number, RpFactSession[]>()
   sessions.forEach((s) => {
-    if (!sessionsByUser.has(s.ID_Usuario)) sessionsByUser.set(s.ID_Usuario, [])
-    sessionsByUser.get(s.ID_Usuario)!.push(s)
+    if (!sessionsByUserId.has(s.ID_Usuario)) sessionsByUserId.set(s.ID_Usuario, [])
+    sessionsByUserId.get(s.ID_Usuario)!.push(s)
   })
 
   return supervisores.map((sup) => {
-    const userKeys = supUserMap.get(sup.Supervisor_Key) ?? new Set<number>()
-    const supervised: RpFactSession[] = []
-    userKeys.forEach((uk) => {
-      // Usuario_Key === ID_Usuario per API schema
-      const userSessions = sessionsByUser.get(uk) ?? []
-      supervised.push(...userSessions)
+    const branchKeys = supAdminMap.get(sup.Supervisor_Key) ?? new Set<number>()
+
+    // ── Strategy 1: scope via branches → users (most reliable) ──────────
+    // For each branch this supervisor manages, collect all users, then sessions
+    const scopedUserIds = new Set<number>()
+    branchKeys.forEach((bk) => {
+      const branchUsers = usersByBranch.get(bk) ?? new Set<number>()
+      branchUsers.forEach((uid) => scopedUserIds.add(uid))
     })
+
+    let supervised: RpFactSession[] = []
+    scopedUserIds.forEach((uid) => {
+      const s = sessionsByUserId.get(uid) ?? []
+      supervised.push(...s)
+    })
+
+    // ── Strategy 2 (fallback): scope via Super_User, translating Usuario_Key → ID_Usuario
+    if (supervised.length === 0) {
+      const usuarioKeys = supUserMap.get(sup.Supervisor_Key) ?? new Set<number>()
+      usuarioKeys.forEach((uk) => {
+        const idUsuario = usuarioKeyToId.get(uk)
+        if (idUsuario !== undefined) {
+          const s = sessionsByUserId.get(idUsuario) ?? []
+          supervised.push(...s)
+        }
+      })
+    }
+
+    // User count: prefer branch-scoped count; fall back to Super_User bridge count
+    const userCount = scopedUserIds.size > 0
+      ? scopedUserIds.size
+      : (supUserMap.get(sup.Supervisor_Key)?.size ?? 0)
+
     const branchSet = new Set(supervised.map((s) => s.Administrador_Nombre))
 
     return {
       supervisorKey: sup.Supervisor_Key,
-      name:  sup['Supervisor Nombre'],
-      email: sup['Supervisor Email'],
-      userCount:    userKeys.size,
-      adminCount:   (supAdminMap.get(sup.Supervisor_Key) ?? new Set()).size,
-      sessionCount: supervised.length,
+      name:          sup['Supervisor Nombre'],
+      email:         sup['Supervisor Email'],
+      userCount,
+      adminCount:    branchKeys.size,
+      sessionCount:  supervised.length,
       avgScore: supervised.length
         ? Math.round(avg(supervised.map((s) => parseScore(s.Puntos_Totales))))
         : 0,
