@@ -8,6 +8,20 @@ export default function LeaderboardPage() {
   const { language } = useAppStore()
   const t = useTranslation(language)
   const { isLoading, isError, userStats, refetch } = useDashboardData()
+  const [search, setSearch] = useState('')
+  const [limitN, setLimitN] = useState<number>(0) // 0 = show all
+
+  const allRows = userStats ?? []
+  const rows = useMemo(() => {
+    let result = allRows
+    if (search.trim()) {
+      const q = search.toLowerCase()
+      result = result.filter((u) => u.name.toLowerCase().includes(q))
+    }
+    return limitN > 0 ? result.slice(0, limitN) : result
+  }, [allRows, search, limitN])
+
+  const es = language === 'es'
 
   if (isLoading) {
     return (
@@ -26,21 +40,6 @@ export default function LeaderboardPage() {
       </div>
     )
   }
-
-  const [search, setSearch] = useState('')
-  const [limitN, setLimitN] = useState<number>(0) // 0 = show all
-
-  const allRows = userStats ?? []
-  const rows = useMemo(() => {
-    let result = allRows
-    if (search.trim()) {
-      const q = search.toLowerCase()
-      result = result.filter((u) => u.name.toLowerCase().includes(q))
-    }
-    return limitN > 0 ? result.slice(0, limitN) : result
-  }, [allRows, search, limitN])
-
-  const es = language === 'es'
 
   return (
     <div className="space-y-5">

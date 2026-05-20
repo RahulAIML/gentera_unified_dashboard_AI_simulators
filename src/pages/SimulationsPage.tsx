@@ -68,12 +68,12 @@ export default function SimulationsPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-line/40">
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_advisor')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_activity')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_date')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_score')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_status')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_details')}</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_advisor')}</th>
+                <th className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_activity')}</th>
+                <th className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_date')}</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_score')}</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_status')}</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_details')}</th>
               </tr>
             </thead>
             <tbody>
@@ -86,10 +86,14 @@ export default function SimulationsPage() {
                       className="border-b border-line/20 hover:bg-white/[0.02] transition-colors cursor-pointer"
                       onClick={() => setExpandedId(expanded ? null : s.ID_Sim)}
                     >
-                      <td className="px-4 py-3 text-slate-200 font-medium">{s.Usuario_Nombre}</td>
-                      <td className="px-4 py-3 text-slate-400">{activity?.Caso_de_Uso ?? `ID ${s.ID_Caso_de_Uso}`}</td>
-                      <td className="px-4 py-3 text-slate-400 text-xs">{s.Fecha_y_Hora.slice(0, 10)}</td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 text-slate-200 font-medium whitespace-nowrap">
+                        <span className="block truncate max-w-[120px] sm:max-w-[180px]">{s.Usuario_Nombre}</span>
+                      </td>
+                      <td className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3 text-slate-400 whitespace-nowrap">
+                        <span className="block truncate max-w-[160px]">{activity?.Caso_de_Uso ?? `ID ${s.ID_Caso_de_Uso}`}</span>
+                      </td>
+                      <td className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 text-slate-400 text-xs whitespace-nowrap">{s.Fecha_y_Hora.slice(0, 10)}</td>
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
                         <span className={cn(
                           'font-semibold',
                           s.Calificacion >= 60 ? 'text-success' : 'text-danger'
@@ -97,18 +101,18 @@ export default function SimulationsPage() {
                           {s.Calificacion}%
                         </span>
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
                         {s.Diagnostico_Final === 'Si' ? (
                           <span className="badge bg-success/10 text-success">
-                            <CheckCircle2 className="w-3 h-3" /> {t('status_pass')}
+                            <CheckCircle2 className="w-3 h-3" /> <span className="hidden sm:inline">{t('status_pass')}</span>
                           </span>
                         ) : (
                           <span className="badge bg-danger/10 text-danger">
-                            <XCircle className="w-3 h-3" /> {t('status_fail')}
+                            <XCircle className="w-3 h-3" /> <span className="hidden sm:inline">{t('status_fail')}</span>
                           </span>
                         )}
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
                         {expanded ? <ChevronUp className="w-4 h-4 text-slate-500" /> : <ChevronDown className="w-4 h-4 text-slate-500" />}
                       </td>
                     </tr>
