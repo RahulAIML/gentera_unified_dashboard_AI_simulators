@@ -201,9 +201,9 @@ export default function SupervisorsPage() {
         <h3 className="text-sm font-semibold text-slate-200 mb-1">{t('rp_branch_performance')}</h3>
         <p className="text-[11px] text-slate-600 mb-4">{t('rp_branch_performance_sub')}</p>
         {top10.length ? (
-          <div className="h-80">
+          <div className="h-64 sm:h-80">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={top10} layout="vertical" margin={{ top: 0, right: 60, left: 10, bottom: 0 }}>
+              <BarChart data={top10} layout="vertical" margin={{ top: 0, right: 30, left: 10, bottom: 0 }}>
                 <CartesianGrid strokeDasharray="3 3" horizontal={false} />
                 <XAxis type="number" tick={{ fontSize: 11, fill: c.tick }} axisLine={false} tickLine={false} />
                 <YAxis

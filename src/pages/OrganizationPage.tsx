@@ -70,7 +70,7 @@ export default function OrganizationPage() {
                 return (
                   <tr key={m.mb_id} className="border-b border-line/20 hover:bg-white/[0.02] transition-colors">
                     <td className="px-4 py-3 text-slate-200 font-medium">{m.mb_fullname}</td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">{m.mb_email}</td>
+                    <td className="px-4 py-3 max-w-[160px]"><span className="text-slate-400 text-xs block truncate">{m.mb_email}</span></td>
                     <td className="px-4 py-3 text-slate-400 text-xs">{m.mb_designation || t('member')}</td>
                     <td className="px-4 py-3 text-slate-400 text-xs">{admin?.rpa_full_name ?? '-'}</td>
                   </tr>
@@ -91,13 +91,13 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
     success: 'text-success bg-success/10',
   }[color] || 'text-accent bg-accent/10'
   return (
-    <div className="card p-5">
+    <div className="card p-4 sm:p-5">
       <div className="flex items-start justify-between">
-        <div>
-          <p className="text-xs text-slate-500 font-medium mb-1">{label}</p>
+        <div className="min-w-0 flex-1">
+          <p className="text-xs text-slate-500 font-medium mb-1 truncate">{label}</p>
           <p className="metric-value">{value}</p>
         </div>
-        <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${colorClass}`}>
+        <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-2 ${colorClass}`}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
@@ -106,7 +106,7 @@ function StatCard({ icon: Icon, label, value, color }: { icon: any; label: strin
 }
 
 function OrgTreeNode({ node, depth }: { node: OrgNode; depth: number }) {
-  const indent = depth * 24
+  const indent = Math.min(depth * 20, 60)
   const iconMap: Record<string, any> = {
     supervisor: Shield,
     admin: UserCheck,
@@ -126,13 +126,13 @@ function OrgTreeNode({ node, depth }: { node: OrgNode; depth: number }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-slate-200 truncate">{node.name}</p>
-          <p className="text-[11px] text-slate-600 flex items-center gap-1.5">
-            <Mail className="w-3 h-3" /> {node.email}
+          <p className="text-[11px] text-slate-600 flex items-center gap-1 truncate">
+            <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{node.email}</span>
           </p>
         </div>
-        <div className="flex items-center gap-3 text-xs text-slate-500 shrink-0">
-          <span className="capitalize">{node.type}</span>
-          <span className="bg-surface px-2 py-0.5 rounded text-slate-600">{node.memberCount} members</span>
+        <div className="flex items-center gap-2 text-xs text-slate-500 shrink-0 ml-2">
+          <span className="capitalize hidden sm:inline">{node.type}</span>
+          <span className="bg-surface px-1.5 py-0.5 rounded text-slate-600 text-[10px] whitespace-nowrap">{node.memberCount}</span>
         </div>
       </div>
       {node.children.length > 0 && (

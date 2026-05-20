@@ -510,11 +510,25 @@ export function AIAssistant() {
             exit={{ opacity: 0, scale: 0.6 }}
             transition={{ type: 'spring', stiffness: 400, damping: 25 }}
             onClick={toggleAI}
-            className="fixed bottom-6 right-6 z-40 w-14 h-14 rounded-full bg-accent shadow-elevated flex items-center justify-center hover:bg-blue-400 transition-colors"
+            className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-40 w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-accent shadow-elevated flex items-center justify-center hover:bg-blue-400 transition-colors"
             title={t('nav_ai_assistant')}
           >
-            <Sparkles className="w-6 h-6 text-white" />
+            <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
           </motion.button>
+        )}
+      </AnimatePresence>
+
+      {/* ── Mobile backdrop (panel open) ── */}
+      <AnimatePresence>
+        {aiOpen && (
+          <motion.div
+            key="ai-backdrop"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/40 z-40 sm:hidden"
+            onClick={toggleAI}
+          />
         )}
       </AnimatePresence>
 
@@ -526,7 +540,7 @@ export function AIAssistant() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: 320 }}
             transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-            className="fixed right-0 top-0 h-full w-[380px] max-w-full bg-surface border-l border-line/40 shadow-elevated z-50 flex flex-col"
+            className="fixed right-0 top-0 h-dvh w-full sm:w-[380px] max-w-full bg-surface border-l border-line/40 shadow-elevated z-50 flex flex-col"
           >
             {/* ── Header ── */}
             <div className="h-14 shrink-0 border-b border-line/30 flex items-center justify-between px-4">
@@ -656,7 +670,7 @@ export function AIAssistant() {
             </div>
 
             {/* ── Input area ── */}
-            <div className="shrink-0 border-t border-line/30 p-3 space-y-2">
+            <div className="shrink-0 border-t border-line/30 p-3 safe-bottom space-y-2">
               {/* Image preview */}
               {attachedImage && (
                 <div className="relative inline-flex">

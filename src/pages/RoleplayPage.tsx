@@ -57,14 +57,14 @@ function RpKpiCard({ icon: Icon, label, value, sub, color }: {
     indigo:  'text-indigo bg-indigo/10',
   }
   return (
-    <div className="card p-5">
+    <div className="card p-4 sm:p-5">
       <div className="flex items-start justify-between">
         <div className="min-w-0 flex-1">
           <p className="text-xs text-slate-500 font-medium mb-1 truncate">{label}</p>
           <p className="text-xl sm:text-2xl lg:text-3xl font-bold tracking-tight" style={{ color: 'var(--text-base)' }}>{value}</p>
           {sub && <p className="text-[11px] text-slate-600 mt-1 truncate">{sub}</p>}
         </div>
-        <div className={cn('w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ml-3', colorMap[color])}>
+        <div className={cn('w-8 h-8 sm:w-9 sm:h-9 rounded-lg flex items-center justify-center shrink-0 ml-2', colorMap[color])}>
           <Icon className="w-4 h-4" />
         </div>
       </div>
@@ -379,7 +379,7 @@ export default function RoleplayPage() {
               <select
                 value={selectedActivity ?? ''}
                 onChange={(e) => setSelectedActivity(e.target.value || null)}
-                className="appearance-none bg-surface border border-line text-slate-300 text-xs rounded-lg px-3 py-1.5 pr-7 focus:outline-none focus:border-accent cursor-pointer"
+                className="appearance-none bg-surface border border-line text-slate-300 text-xs rounded-lg px-3 py-1.5 pr-7 focus:outline-none focus:border-accent cursor-pointer max-w-[200px] sm:max-w-xs truncate"
               >
                 <option value="">{t('filter_all_activities')}</option>
                 {activityNames.map((name) => (
@@ -439,18 +439,18 @@ export default function RoleplayPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left border-b border-line/30">
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_rank')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_advisor')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('rp_col_branch')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_simulations')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4">{t('col_avg_score')}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600">{es ? 'Intentos' : 'Attempts'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-4">{t('col_rank')}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-4">{t('col_advisor')}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-4 hidden sm:table-cell">{t('rp_col_branch')}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-4 hidden sm:table-cell">{t('col_simulations')}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-4">{t('col_avg_score')}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 hidden md:table-cell">{es ? 'Intentos' : 'Attempts'}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line/20">
               {userStats.slice(0, 10).map((u, i) => (
                 <tr key={u.userId} className="hover:bg-white/[0.015] transition-colors">
-                  <td className="py-2 pr-4">
+                  <td className="py-2 pr-2 sm:pr-4">
                     <span className={cn(
                       'inline-flex w-6 h-6 rounded-full items-center justify-center text-[10px] font-bold',
                       i === 0 ? 'bg-yellow-500/15 text-yellow-500' :
@@ -459,11 +459,11 @@ export default function RoleplayPage() {
                       'bg-surface text-slate-600',
                     )}>{i + 1}</span>
                   </td>
-                  <td className="py-2 pr-4 text-slate-200 font-medium truncate max-w-[160px]">{u.name}</td>
-                  <td className="py-2 pr-4 text-slate-500 text-xs truncate max-w-[120px]">{u.branch}</td>
-                  <td className="py-2 pr-4 text-slate-400">{u.count}</td>
-                  <td className="py-2 pr-4 font-semibold text-slate-100">{u.avgScore}</td>
-                  <td className="py-2 text-slate-500 text-xs">{u.avgAttempts}</td>
+                  <td className="py-2 pr-2 sm:pr-4 text-slate-200 font-medium truncate max-w-[120px] sm:max-w-[160px] text-xs sm:text-sm">{u.name}</td>
+                  <td className="py-2 pr-2 sm:pr-4 text-slate-500 text-xs truncate max-w-[100px] sm:max-w-[120px] hidden sm:table-cell">{u.branch}</td>
+                  <td className="py-2 pr-2 sm:pr-4 text-slate-400 hidden sm:table-cell">{u.count}</td>
+                  <td className="py-2 pr-2 sm:pr-4 font-semibold text-slate-100 text-sm">{u.avgScore}</td>
+                  <td className="py-2 text-slate-500 text-xs hidden md:table-cell">{u.avgAttempts}</td>
                 </tr>
               ))}
             </tbody>
@@ -490,13 +490,13 @@ export default function RoleplayPage() {
           <table className="w-full text-sm">
             <thead>
               <tr className="text-left border-b border-line/30">
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Fecha' : 'Date'}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Usuario' : 'User'}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Sucursal' : 'Branch'}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3">{es ? 'Actividad' : 'Activity'}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">{es ? 'Puntaje' : 'Score'}</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">Robin %</th>
-                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-3 text-right">{es ? 'Intentos' : 'Attempts'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3">{es ? 'Fecha' : 'Date'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3">{es ? 'Usuario' : 'User'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3 hidden sm:table-cell">{es ? 'Sucursal' : 'Branch'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3 hidden md:table-cell">{es ? 'Actividad' : 'Activity'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3 text-right">{es ? 'Puntaje' : 'Score'}</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3 text-right hidden sm:table-cell">Robin %</th>
+                <th className="pb-2 text-[11px] font-medium text-slate-600 pr-2 sm:pr-3 text-right hidden md:table-cell">{es ? 'Intentos' : 'Attempts'}</th>
                 <th className="pb-2 text-[11px] font-medium text-slate-600 text-center">{es ? 'Resultado' : 'Result'}</th>
               </tr>
             </thead>
@@ -507,11 +507,11 @@ export default function RoleplayPage() {
                 const hasLink  = s.Enlace_con_Resultados && s.Enlace_con_Resultados.startsWith('http')
                 return (
                   <tr key={s.ID_Ejercicio_Rub} className="hover:bg-white/[0.015] transition-colors">
-                    <td className="py-2 pr-3 text-slate-500 text-xs whitespace-nowrap">{s.Fecha}</td>
-                    <td className="py-2 pr-3 text-slate-200 font-medium text-xs truncate max-w-[140px]">{s.Usuario_Nombre}</td>
-                    <td className="py-2 pr-3 text-slate-500 text-xs truncate max-w-[120px]">{s.Administrador_Nombre}</td>
-                    <td className="py-2 pr-3 text-slate-500 text-xs truncate max-w-[160px]">{s.Actividad_Rub_Nombre}</td>
-                    <td className="py-2 pr-3 text-right">
+                    <td className="py-2 pr-2 sm:pr-3 text-slate-500 text-xs whitespace-nowrap">{s.Fecha}</td>
+                    <td className="py-2 pr-2 sm:pr-3 text-slate-200 font-medium text-xs truncate max-w-[110px] sm:max-w-[140px]">{s.Usuario_Nombre}</td>
+                    <td className="py-2 pr-2 sm:pr-3 text-slate-500 text-xs truncate max-w-[100px] sm:max-w-[120px] hidden sm:table-cell">{s.Administrador_Nombre}</td>
+                    <td className="py-2 pr-2 sm:pr-3 text-slate-500 text-xs truncate max-w-[140px] sm:max-w-[160px] hidden md:table-cell">{s.Actividad_Rub_Nombre}</td>
+                    <td className="py-2 pr-2 sm:pr-3 text-right">
                       <span className={cn(
                         'text-xs font-semibold tabular-nums',
                         scoreNum >= 70 ? 'text-success' : scoreNum >= 50 ? 'text-accent' : 'text-danger',
@@ -519,10 +519,10 @@ export default function RoleplayPage() {
                         {scoreNum}
                       </span>
                     </td>
-                    <td className="py-2 pr-3 text-right">
+                    <td className="py-2 pr-2 sm:pr-3 text-right hidden sm:table-cell">
                       <span className="text-xs text-violet tabular-nums">{robinNum}%</span>
                     </td>
-                    <td className="py-2 pr-3 text-right text-slate-500 text-xs tabular-nums">
+                    <td className="py-2 pr-2 sm:pr-3 text-right text-slate-500 text-xs tabular-nums hidden md:table-cell">
                       {s.Grabaciones_Totales ?? '—'}
                     </td>
                     <td className="py-2 text-center">
