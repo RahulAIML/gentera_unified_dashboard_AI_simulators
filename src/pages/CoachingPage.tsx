@@ -40,7 +40,7 @@ export default function CoachingPage() {
         <p className="text-slate-500 text-sm mt-0.5">{t('page_coaching_subtitle')}</p>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {/* Strengths */}
         <div className="card p-5">
           <div className="flex items-center gap-2 mb-4">
@@ -50,7 +50,7 @@ export default function CoachingPage() {
           <div className="space-y-2">
             {(userStats ?? []).slice(0, 5).map((u) => (
               <div key={u.name} className="flex items-center justify-between p-2 rounded-lg bg-success/5 border border-success/10">
-                <span className="text-xs text-slate-300">{u.name}</span>
+                <span className="text-xs text-slate-300 truncate flex-1 min-w-0">{u.name}</span>
                 <span className="text-xs font-bold text-success">{u.avgScore}%</span>
               </div>
             ))}
@@ -67,7 +67,7 @@ export default function CoachingPage() {
             {lowPerformers.length > 0 ? (
               lowPerformers.map((u) => (
                 <div key={u.name} className="flex items-center justify-between p-2 rounded-lg bg-warning/5 border border-warning/10">
-                  <span className="text-xs text-slate-300">{u.name}</span>
+                  <span className="text-xs text-slate-300 truncate flex-1 min-w-0">{u.name}</span>
                   <span className="text-xs font-bold text-warning">{u.avgScore}%</span>
                 </div>
               ))

@@ -324,8 +324,8 @@ export default function ConversationalPage() {
                   <YAxis domain={[0, 100]} tick={{ fontSize: 11, fill: c.tick }} axisLine={false} tickLine={false} />
                   <Tooltip content={<RoundTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
                   <Legend content={renderLegend} />
-                  <Bar dataKey={avgKey}  fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={28} />
-                  <Bar dataKey={passKey} fill="#10B981" radius={[4, 4, 0, 0]} barSize={28} />
+                  <Bar dataKey={avgKey}  fill="#3B82F6" radius={[4, 4, 0, 0]} barSize={20} />
+                  <Bar dataKey={passKey} fill="#10B981" radius={[4, 4, 0, 0]} barSize={20} />
                 </BarChart>
               </ResponsiveContainer>
             </div>
@@ -452,7 +452,7 @@ export default function ConversationalPage() {
                     <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4 text-right">
                       {es ? 'Puntaje Prom.' : 'Avg Score'}
                     </th>
-                    <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4 text-right">
+                    <th className="pb-2 text-[11px] font-medium text-slate-600 pr-4 text-right hidden sm:table-cell">
                       {es ? 'Tasa Aprobación' : 'Pass Rate'}
                     </th>
                     <th className="pb-2 text-[11px] font-medium text-slate-600 text-right">
@@ -477,7 +477,7 @@ export default function ConversationalPage() {
                           {stat.avgScore}%
                         </span>
                       </td>
-                      <td className="py-2.5 pr-4 text-right">
+                      <td className="py-2.5 pr-4 text-right hidden sm:table-cell">
                         <div className="flex items-center justify-end gap-2">
                           <div className="w-16 h-1.5 bg-white/[0.05] rounded-full overflow-hidden">
                             <div

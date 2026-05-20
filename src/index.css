@@ -151,6 +151,18 @@ html:not(.dark) .text-slate-400 { color: #64748b; }
     word-break: break-word;
     overflow-wrap: break-word;
   }
+  /* Safe-area aware bottom padding (notched iPhones) */
+  .safe-bottom {
+    padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  /* Full-height using dynamic viewport — adapts to mobile browser chrome */
+  .h-dvh {
+    height: 100dvh;
+  }
+  /* Mobile-friendly table cells */
+  .td-mobile {
+    @apply px-2 sm:px-4 py-2 sm:py-3;
+  }
   .chart-container {
     @apply w-full;
   }

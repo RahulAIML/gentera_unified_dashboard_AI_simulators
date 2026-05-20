@@ -15,8 +15,8 @@ export function Shell({ children }: { children: ReactNode }) {
   }, [theme])
 
   return (
-    <div className="flex h-screen overflow-hidden bg-bg">
-      {/* Mobile overlay */}
+    <div className="flex h-dvh overflow-hidden bg-bg">
+      {/* Mobile overlay — sidebar */}
       {mobileMenuOpen && (
         <div
           className="fixed inset-0 bg-black/50 z-40 lg:hidden"
@@ -27,7 +27,7 @@ export function Shell({ children }: { children: ReactNode }) {
       <div className="flex flex-col flex-1 min-w-0 overflow-hidden">
         <TopBar />
         <main className="flex-1 overflow-y-auto overflow-x-hidden">
-          <div className="p-3 sm:p-5 lg:p-6 max-w-[1600px] mx-auto page-fade">
+          <div className="p-3 sm:p-5 lg:p-6 pb-6 max-w-[1600px] mx-auto page-fade">
             {children}
           </div>
         </main>

@@ -66,14 +66,21 @@ export default function ActivitiesPage() {
       {/* Chart */}
       <div className="card p-5">
         <h3 className="text-sm font-semibold text-slate-200 mb-4">{t('activity_breakdown')}</h3>
-        <div className="h-72">
+        <div className="h-72 sm:h-80">
           <ResponsiveContainer width="100%" height="100%">
-            <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 0 }}>
+            <BarChart data={data} margin={{ top: 5, right: 5, left: -20, bottom: 40 }}>
               <CartesianGrid strokeDasharray="3 3" vertical={false} />
-              <XAxis dataKey="name" tick={{ fontSize: 11 }} />
-              <YAxis />
+              <XAxis
+                dataKey="name"
+                tick={{ fontSize: 10 }}
+                angle={-30}
+                textAnchor="end"
+                interval={0}
+                height={60}
+              />
+              <YAxis tick={{ fontSize: 11 }} />
               <Tooltip content={<ActivityBarTooltip es={es} c={tt} />} wrapperStyle={{ zIndex: 50, outline: 'none' }} cursor={{ fill: c.cursorFill }} />
-              <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={32}>
+              <Bar dataKey="count" radius={[4, 4, 0, 0]} barSize={28}>
                 {data.map((entry, index) => (
                   <Cell key={index} fill={entry.color} />
                 ))}
