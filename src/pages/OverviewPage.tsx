@@ -168,17 +168,68 @@ export default function OverviewPage() {
 
   // ── CSV exports ─────────────────────────────
   function exportSimCSV() {
-    if (!activeKpis) return
-    downloadCSV([
-      [es ? 'Métrica' : 'Metric',              es ? 'Valor' : 'Value'],
-      [es ? 'Total Simulaciones' : 'Total Simulations', activeKpis.totalSimulations],
-      [es ? 'Puntaje Promedio'   : 'Average Score',     `${activeKpis.averageScore}%`],
-      [es ? 'Tasa de Aprobación' : 'Pass Rate',         `${activeKpis.passRate}%`],
-      [es ? 'Asesores Activos'   : 'Active Advisors',   activeKpis.activeAdvisors],
-      [es ? 'Aprobados'          : 'Passed',            activeKpis.passCount],
-      [es ? 'Reprobados'         : 'Failed',            activeKpis.failCount],
-      ...(activeActStats ?? []).map((a) => [a.name, a.count]),
-    ], `gentera_sim_overview_${csvDate()}.csv`)
+    const simsToExport = filteredSims.length ? filteredSims : sims
+    if (!simsToExport.length) return
+    const actMap = new Map(activities.map((a) => [a.ID_Caso_de_Uso, a.Caso_de_Uso]))
+
+    const headers: string[] = [
+      es ? 'ID Simulación'    : 'Simulation ID',
+      es ? 'Usuario'          : 'Username',
+      es ? 'Nombre Completo'  : 'Full Name',
+      es ? 'Actividad'        : 'Activity',
+      es ? 'Fecha'            : 'Date',
+      es ? 'Hora'             : 'Time',
+      es ? 'Calificación (%)'  : 'Score (%)',
+      es ? 'Puntos Totales'   : 'Total Points',
+      es ? 'Resultado'        : 'Result',
+      // Interaction 1-6
+      ...Array.from({ length: 6 }, (_, i) => [
+        `${es ? 'Pregunta' : 'Question'} ${i + 1}`,
+        `${es ? 'Respuesta' : 'Response'} ${i + 1}`,
+        `${es ? 'Puntos' : 'Points'} ${i + 1}`,
+        `${es ? 'Retroalimentación' : 'Feedback'} ${i + 1}`,
+      ]).flat(),
+    ]
+
+    const rows: (string | number)[][] = [headers]
+    simsToExport.forEach((s) => {
+      const actName = actMap.get(s.ID_Caso_de_Uso) ?? `ID ${s.ID_Caso_de_Uso}`
+      const dateTime = s.Fecha_y_Hora ?? ''
+      const date = dateTime.slice(0, 10)
+      const time = dateTime.length > 10 ? dateTime.slice(11, 19) : ''
+      const result = s.Diagnostico_Final === 'Si'
+        ? (es ? 'Aprobado' : 'Pass')
+        : s.Diagnostico_Final === 'No'
+          ? (es ? 'Reprobado' : 'Fail')
+          : (es ? 'Sin diagnóstico' : 'No result')
+
+      const roundData: (string | number)[] = Array.from({ length: 6 }, (_, i) => {
+        const n = i + 1
+        const pts = s[`Puntos_${n}` as keyof typeof s]
+        const ptsVal: string | number = pts === 'No aplica' || pts === null || pts === undefined ? '' : (pts as string | number)
+        return [
+          String((s[`Pregunta_${n}` as keyof typeof s] as string | null) ?? ''),
+          String((s[`Respuesta_${n}` as keyof typeof s] as string | null) ?? ''),
+          ptsVal,
+          String((s[`Retroalimentacion_${n}` as keyof typeof s] as string | null) ?? ''),
+        ] as (string | number)[]
+      }).flat()
+
+      rows.push([
+        s.ID_Sim,
+        s.Usuario,
+        s.Usuario_Nombre,
+        actName,
+        date,
+        time,
+        s.Calificacion,
+        s.Puntos_Totales,
+        result,
+        ...roundData,
+      ])
+    })
+
+    downloadCSV(rows, `gentera_simulaciones_detallado_${csvDate()}.csv`)
   }
 
   function exportRpCSV() {

@@ -201,7 +201,7 @@ export function AIAssistant() {
   const location = useLocation()
 
   // Dashboard data — used for context, but AI works even if unavailable
-  const { kpis, sims, activities, actStats, userStats, isLoading: dashLoading } = useDashboardData()
+  const { kpis, sims, activities, actStats, userStats, roundStats, isLoading: dashLoading } = useDashboardData()
   const { sessions: rpSessions, actividades } = useRoleplayData()
 
   const [messages,      setMessages]      = useState<Message[]>([])
@@ -288,7 +288,7 @@ export function AIAssistant() {
     }
 
     if (kpis && !dashLoading) {
-      ctx += buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [])
+      ctx += buildAIContext(kpis, sims, activities, actStats ?? [], userStats ?? [], roundStats, location.pathname)
     } else {
       ctx +=
         'DASHBOARD DATA: Currently loading or unavailable.\n' +
@@ -353,11 +353,39 @@ export function AIAssistant() {
         ? `\n\n(No additional text — please analyse the image as instructed above.)`
         : ''
 
+    const systemInstruction = `
+SYSTEM ROLE
+===========
+You are the Gentera AI Analytics Assistant — an expert in B2B sales performance, microfinance advisor coaching, and simulation-based training evaluation.
+
+You have direct access to the live Gentera platform data shown above. Your job is to:
+- Interpret simulation KPIs, trends, and advisor performance accurately
+- Identify strengths, weaknesses, and coaching opportunities from the data
+- Give specific, actionable recommendations based on the numbers
+- Always reference actual data values in your answers (scores, pass rates, names, counts)
+- Never make up data or hallucinate values not present in the context
+
+CURRENT CONTEXT
+===============
+- User is on the "${pageName}" page
+- Language: ${lang}
+- Data reflects all simulations filtered to the current dashboard view
+
+RESPONSE GUIDELINES
+===================
+- Be concise but thorough — lead with the key insight, then support with data
+- Use bullet points or numbered lists for multi-part answers
+- Bold (**text**) important numbers and names
+- If asked about a specific advisor or activity, find them in the data above
+- For coaching questions: reference specific weak interactions or below-threshold advisors
+- If data is insufficient to answer accurately, say so clearly
+- Do NOT suggest actions the platform cannot do (e.g., "send an email to advisor X")
+- Respond fully in ${lang} — no language mixing`
+
     const fullPrompt =
       buildContext() +
       imageInstruction +
-      `\n\nYou are the Gentera AI assistant. Respond in ${lang}. ` +
-      `The user is on the "${pageName}" page. Be concise, data-driven, and actionable.` +
+      systemInstruction +
       userQuestion
 
     // Validate image data before sending

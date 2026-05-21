@@ -354,38 +354,111 @@ export function buildAIContext(
   activities: Activity[],
   actStats: ActivityStat[],
   userStats: UserStat[],
+  roundStats?: RoundStat[] | null,
+  pagePath?: string,
 ): string {
-  const topUsers = userStats.slice(0, 5).map((u) => `${u.name} (${u.avgScore}%)`).join(', ')
+  // Top and bottom performers
+  const topPerformers  = userStats.slice(0, 10).map((u) =>
+    `  ${u.name}: avg ${u.avgScore}%, pass ${u.passRate}%, ${u.count} sim(s)`,
+  ).join('\n')
+
+  const lowPerformers = userStats
+    .filter((u) => u.avgScore < 60)
+    .slice(0, 8)
+    .map((u) => `  ${u.name}: avg ${u.avgScore}%, pass ${u.passRate}%`)
+    .join('\n')
+
+  // Activity breakdown with pass rates
   const actList = actStats
-    .map((a) => `${a.name}: ${a.count} sims, avg ${a.avgScore}%`)
-    .join('; ')
+    .map((a) => `  ${a.name}: ${a.count} sims | avg ${a.avgScore}% | pass ${a.passRate}% (${a.passCount}✓ ${a.failCount}✗)`)
+    .join('\n')
+
+  // Round/interaction stats
+  const roundList = (roundStats ?? [])
+    .map((r) => `  Interaction ${r.round}: avg pts ${r.avg} | pass ${r.passRate}% | ${r.count} responses`)
+    .join('\n')
+
+  // Recent 10 simulations
   const recent = sims
-    .slice(-5)
-    .map((s) => `${s.Usuario_Nombre}: ${s.Calificacion}% (${s.Diagnostico_Final})`)
-    .join(', ')
+    .slice(-10)
+    .map((s) => {
+      const actName = activities.find((a) => a.ID_Caso_de_Uso === s.ID_Caso_de_Uso)?.Caso_de_Uso ?? `Act ${s.ID_Caso_de_Uso}`
+      return `  ${s.Usuario_Nombre} | ${actName} | ${s.Calificacion}% | ${s.Diagnostico_Final === 'Si' ? 'PASS' : 'FAIL'} | ${s.Fecha_y_Hora.slice(0, 10)}`
+    })
+    .join('\n')
+
+  // Score distribution
+  const scoreRanges = [
+    { label: '80-100%', sims: sims.filter((s) => s.Calificacion >= 80) },
+    { label: '60-79%',  sims: sims.filter((s) => s.Calificacion >= 60 && s.Calificacion < 80) },
+    { label: '40-59%',  sims: sims.filter((s) => s.Calificacion >= 40 && s.Calificacion < 60) },
+    { label: '0-39%',   sims: sims.filter((s) => s.Calificacion < 40) },
+  ]
+  const scoreDist = scoreRanges.map((r) => `  ${r.label}: ${r.sims.length} advisors`).join('\n')
+
+  // Page-specific extra context
+  let pageExtra = ''
+  if (pagePath === '/coaching') {
+    const needsHelp = userStats.filter((u) => u.avgScore < 60).slice(0, 5)
+    pageExtra = '\nCOACHING FOCUS:\n' +
+      (needsHelp.length
+        ? `  Advisors needing support: ${needsHelp.map((u) => `${u.name} (${u.avgScore}%)`).join(', ')}`
+        : '  All advisors above 60% threshold — maintain momentum.')
+  }
+  if (pagePath === '/leaderboard') {
+    pageExtra = '\nLEADERBOARD SNAPSHOT (Top 5):\n' +
+      userStats.slice(0, 5).map((u, i) =>
+        `  #${i + 1} ${u.name}: ${u.avgScore}% avg, ${u.passRate}% pass rate`,
+      ).join('\n')
+  }
+  if (pagePath === '/activities') {
+    const weak = actStats.filter((a) => a.passRate < 60)
+    pageExtra = '\nACTIVITY ALERTS:\n' +
+      (weak.length
+        ? `  Below 60% pass rate: ${weak.map((a) => `${a.name} (${a.passRate}%)`).join(', ')}`
+        : '  All activities above 60% pass rate.')
+  }
 
   return `
 GENTERA CONVERSATIONAL INTELLIGENCE PLATFORM — LIVE DASHBOARD DATA
--------------------------------------------------------------------
-Total Simulations: ${kpis.totalSimulations}
-Average Score: ${kpis.averageScore}%
-Pass Rate: ${kpis.passRate}% (${kpis.passCount} passed, ${kpis.failCount} failed)
-Active Advisors: ${kpis.activeAdvisors}
-Total Members: ${kpis.totalMembers}
-Total Admins: ${kpis.totalAdmins}
-Total Supervisors: ${kpis.totalSupervisors}
-Best Score: ${kpis.bestScore}%
-Lowest Score: ${kpis.worstScore}%
+===================================================================
+Platform: AI-powered B2B sales simulation & coaching for financial advisors
+Industry: Microfinance / Financial Services (Compartamos Banco / Gentera Group)
+Use case: Role-play simulations, conversational AI scoring, advisor performance tracking
 
-Activities:
-${actList}
+OVERALL KPIs
+------------
+Total Simulations : ${kpis.totalSimulations}
+Average Score     : ${kpis.averageScore}%
+Pass Rate         : ${kpis.passRate}%  (${kpis.passCount} passed / ${kpis.failCount} failed)
+Active Advisors   : ${kpis.activeAdvisors}
+Best Score        : ${kpis.bestScore}%
+Lowest Score      : ${kpis.worstScore}%
+Total Members     : ${kpis.totalMembers}
+Admins            : ${kpis.totalAdmins}
+Supervisors       : ${kpis.totalSupervisors}
 
-Top Performers:
-${topUsers}
+SCORE DISTRIBUTION
+------------------
+${scoreDist}
 
-Recent Simulations (last 5):
-${recent}
+ACTIVITIES (${actStats.length} total)
+-----------
+${actList || '  No activity data available.'}
 
-Activities Available: ${activities.map((a) => a.Caso_de_Uso).join(', ')}
+${roundList ? `INTERACTION / ROUND BREAKDOWN\n-----------------------------\n${roundList}` : ''}
+
+TOP PERFORMERS (by avg score)
+-----------------------------
+${topPerformers || '  No performer data available.'}
+
+${lowPerformers ? `ADVISORS BELOW 60% THRESHOLD\n----------------------------\n${lowPerformers}` : 'All advisors are above the 60% pass threshold.'}
+
+RECENT SIMULATIONS (last 10)
+----------------------------
+${recent || '  No recent simulations.'}
+
+AVAILABLE ACTIVITIES: ${activities.map((a) => a.Caso_de_Uso).join(' | ')}
+${pageExtra}
   `.trim()
 }

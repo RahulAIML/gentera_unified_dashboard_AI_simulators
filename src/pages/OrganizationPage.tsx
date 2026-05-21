@@ -58,21 +58,32 @@ export default function OrganizationPage() {
           <table className="w-full text-left text-sm">
             <thead>
               <tr className="border-b border-line/40">
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_advisor')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_email')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_type')}</th>
-                <th className="px-4 py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_members')}</th>
+                <th className="px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_advisor')}</th>
+                <th className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_email')}</th>
+                <th className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_type')}</th>
+                <th className="hidden lg:table-cell px-2 sm:px-4 py-2 sm:py-3 text-[11px] font-semibold text-slate-500 uppercase tracking-wider">{t('col_members')}</th>
               </tr>
             </thead>
             <tbody>
               {members.slice(0, 50).map((m) => {
                 const admin = admins.find((a) => a.rpa_id === m.mb_admin)
+                const email = m.mb_email?.trim() || null
                 return (
                   <tr key={m.mb_id} className="border-b border-line/20 hover:bg-white/[0.02] transition-colors">
-                    <td className="px-4 py-3 text-slate-200 font-medium">{m.mb_fullname}</td>
-                    <td className="px-4 py-3 max-w-[160px]"><span className="text-slate-400 text-xs block truncate">{m.mb_email}</span></td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">{m.mb_designation || t('member')}</td>
-                    <td className="px-4 py-3 text-slate-400 text-xs">{admin?.rpa_full_name ?? '-'}</td>
+                    <td className="px-2 sm:px-4 py-2 sm:py-3 text-slate-200 font-medium whitespace-nowrap">
+                      <span className="block truncate max-w-[140px] sm:max-w-[220px]">{m.mb_fullname || '-'}</span>
+                    </td>
+                    <td className="hidden sm:table-cell px-2 sm:px-4 py-2 sm:py-3 max-w-[180px]">
+                      {email ? (
+                        <a href={`mailto:${email}`} className="text-accent text-xs block truncate hover:underline">
+                          {email}
+                        </a>
+                      ) : (
+                        <span className="text-slate-600 text-xs italic">—</span>
+                      )}
+                    </td>
+                    <td className="hidden md:table-cell px-2 sm:px-4 py-2 sm:py-3 text-slate-400 text-xs whitespace-nowrap">{m.mb_designation || t('member')}</td>
+                    <td className="hidden lg:table-cell px-2 sm:px-4 py-2 sm:py-3 text-slate-400 text-xs whitespace-nowrap truncate max-w-[140px]">{admin?.rpa_full_name ?? '-'}</td>
                   </tr>
                 )
               })}
@@ -126,9 +137,12 @@ function OrgTreeNode({ node, depth }: { node: OrgNode; depth: number }) {
         </div>
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium text-slate-200 truncate">{node.name}</p>
-          <p className="text-[11px] text-slate-600 flex items-center gap-1 truncate">
-            <Mail className="w-3 h-3 shrink-0" /> <span className="truncate">{node.email}</span>
-          </p>
+          {node.email && (
+            <p className="text-[11px] text-slate-600 flex items-center gap-1 truncate">
+              <Mail className="w-3 h-3 shrink-0" />
+              <span className="truncate">{node.email}</span>
+            </p>
+          )}
         </div>
         <div className="flex items-center gap-2 text-xs text-slate-500 shrink-0 ml-2">
           <span className="capitalize hidden sm:inline">{node.type}</span>
