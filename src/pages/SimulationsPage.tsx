@@ -96,7 +96,7 @@ export default function SimulationsPage() {
                       <td className="px-2 sm:px-4 py-2 sm:py-3 whitespace-nowrap">
                         <span className={cn(
                           'font-semibold',
-                          s.Calificacion >= 60 ? 'text-success' : 'text-danger'
+                          s.Diagnostico_Final === 'Si' ? 'text-success' : 'text-danger'
                         )}>
                           {s.Calificacion}%
                         </span>
