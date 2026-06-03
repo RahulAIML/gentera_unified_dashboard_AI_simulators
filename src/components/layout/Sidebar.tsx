@@ -9,6 +9,27 @@ import { useAppStore } from '../../store'
 import { useTranslation } from '../../lib/i18n'
 import { cn } from '../../lib/cn'
 
+// Inline SVG — no file request, loads on every device/browser
+function GenteraLogo({ size = 40 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="15 5 185 200"
+      xmlns="http://www.w3.org/2000/svg"
+      style={{ flexShrink: 0 }}
+    >
+      <g transform="translate(108,112)">
+        <path d="M0,55 C-55,40 -85,-10 -68,-72 C-38,-85 -5,-45 0,55 Z" fill="#2878BF"/>
+        <path d="M0,55 C-60,25 -85,-30 -62,-90 C-28,-102 8,-55 0,55 Z" fill="#2BAA9A"/>
+        <path d="M0,55 C30,30 72,15 88,-22 C78,-62 38,-62 0,55 Z" fill="#CC006E"/>
+        <path d="M0,55 C22,10 62,-18 72,-75 C40,-105 2,-72 0,55 Z" fill="#E07820"/>
+        <path d="M0,55 C-18,5 -28,-58 0,-100 C28,-88 38,-22 0,55 Z" fill="#6B3FA8"/>
+      </g>
+    </svg>
+  )
+}
+
 interface NavItem {
   to: string
   icon: React.ComponentType<{ className?: string }>
@@ -151,7 +172,7 @@ export function Sidebar() {
         {/* Logo */}
         <div className="flex items-center h-16 px-4 border-b border-line/30 shrink-0">
           <div className="flex items-center gap-3 min-w-0">
-            <img src="/gentera_logo.webp" alt="Gentera" className="w-10 h-10 shrink-0 rounded-lg" />
+            <GenteraLogo size={40} />
             <AnimatePresence>
               {!sidebarCollapsed && (
                 <motion.div
@@ -199,7 +220,7 @@ export function Sidebar() {
             {/* Logo + close */}
             <div className="flex items-center justify-between h-16 px-4 border-b border-line/30 shrink-0">
               <div className="flex items-center gap-3">
-                <img src="/gentera_logo.webp" alt="Gentera" className="w-9 h-9 shrink-0 rounded-lg" />
+                <GenteraLogo size={36} />
                 <div className="flex flex-col">
                   <span className="text-slate-100 font-semibold text-sm leading-tight">Gentera</span>
                   <span className="text-slate-600 text-[10px] leading-tight">{t('sidebar_tagline')}</span>
