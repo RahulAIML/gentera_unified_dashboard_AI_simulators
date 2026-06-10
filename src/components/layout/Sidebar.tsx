@@ -8,25 +8,18 @@ import { NavLink } from 'react-router-dom'
 import { useAppStore } from '../../store'
 import { useTranslation } from '../../lib/i18n'
 import { cn } from '../../lib/cn'
+import GENTERA_LOGO from '../../assets/genteraLogo'
 
-// Inline SVG — no file request, loads on every device/browser
+// Embedded logo — no network request, immune to Vite proxy rules
 function GenteraLogo({ size = 40 }: { size?: number }) {
   return (
-    <svg
+    <img
+      src={GENTERA_LOGO}
+      alt="Gentera"
       width={size}
       height={size}
-      viewBox="15 5 185 200"
-      xmlns="http://www.w3.org/2000/svg"
-      style={{ flexShrink: 0 }}
-    >
-      <g transform="translate(108,112)">
-        <path d="M0,55 C-55,40 -85,-10 -68,-72 C-38,-85 -5,-45 0,55 Z" fill="#2878BF"/>
-        <path d="M0,55 C-60,25 -85,-30 -62,-90 C-28,-102 8,-55 0,55 Z" fill="#2BAA9A"/>
-        <path d="M0,55 C30,30 72,15 88,-22 C78,-62 38,-62 0,55 Z" fill="#CC006E"/>
-        <path d="M0,55 C22,10 62,-18 72,-75 C40,-105 2,-72 0,55 Z" fill="#E07820"/>
-        <path d="M0,55 C-18,5 -28,-58 0,-100 C28,-88 38,-22 0,55 Z" fill="#6B3FA8"/>
-      </g>
-    </svg>
+      style={{ flexShrink: 0, objectFit: 'contain' }}
+    />
   )
 }
 
